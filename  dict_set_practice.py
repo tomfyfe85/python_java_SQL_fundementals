@@ -37,31 +37,31 @@ WHY USE IT:
 
 EXAMPLE:
 """
-print("\n--- .get() METHOD ---")
+# print("\n--- .get() METHOD ---")
 
-user_data = {'name': 'Alice', 'age': 25, 'city': 'London'}
+# user_data = {'name': 'Alice', 'age': 25, 'city': 'London'}
 
-# Using bracket notation - RISKY!
-try:
-    country = user_data['country']  # This will crash!
-except KeyError:
-    print("❌ KeyError: 'country' key doesn't exist")
+# # Using bracket notation - RISKY!
+# try:
+#     country = user_data['country']  # This will crash!
+# except KeyError:
+#     print("❌ KeyError: 'country' key doesn't exist")
 
-# Using .get() - SAFE!
-country = user_data.get('country')
-print(f"✓ Country (using .get()): {country}")  # Returns None
+# # Using .get() - SAFE!
+# country = user_data.get('country')
+# print(f"✓ Country (using .get()): {country}")  # Returns None
 
-country = user_data.get('country', 'Unknown')
-print(f"✓ Country (with default): {country}")  # Returns 'Unknown'
+# country = user_data.get('country', 'Unknown')
+# print(f"✓ Country (with default): {country}")  # Returns 'Unknown'
 
-# The counting pattern - VERY IMPORTANT!
-vote_counts = {}
-votes = ['apple', 'banana', 'apple', 'orange', 'banana', 'apple']
+# # The counting pattern - VERY IMPORTANT!
+# vote_counts = {}
+# votes = ['apple', 'banana', 'apple', 'orange', 'banana', 'apple']
 
-for vote in votes:
-    vote_counts[vote] = vote_counts.get(vote, 0) + 1
+# for vote in votes:
+#     vote_counts[vote] = vote_counts.get(vote, 0) + 1
 
-print(f"✓ Vote counts: {vote_counts}")
+# print(f"✓ Vote counts: {vote_counts}")
 
 print("\n" + "=" * 70)
 print("EXERCISE 1: .get() Practice")
@@ -73,8 +73,7 @@ event = {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '10:00'}
 
 # TODO: Get the 'user_id' field safely (it doesn't exist!)
 # Use .get() and provide 'GUEST' as the default value
-user_id = None  # Replace this line
-
+user_id = event.get('user_id', 'GUEST')
 print(f"User ID: {user_id}")  # Should print: User ID: GUEST
 
 
@@ -82,10 +81,10 @@ print(f"User ID: {user_id}")  # Should print: User ID: GUEST
 print("\nExercise 1.2: Count Item Occurrences")
 scans = ['gate_A', 'gate_B', 'gate_A', 'gate_C', 'gate_A', 'gate_B', 'gate_C', 'gate_C']
 
-# TODO: Count how many scans happened at each gate
-# Use the .get() counting pattern
 gate_counts = {}
-# Your code here
+
+for scan in scans:
+    gate_counts[scan] = gate_counts.get(scan, 0) + 1
 
 
 print(f"Gate counts: {gate_counts}")
@@ -93,18 +92,19 @@ print(f"Gate counts: {gate_counts}")
 
 
 # EXERCISE 1.3: Default Values
-print("\nExercise 1.3: Configuration with Defaults")
+# print("\nExercise 1.3: Configuration with Defaults")
 config = {'timeout': 30, 'retries': 3}
 
 # TODO: Get these config values, using defaults if missing:
 # - 'timeout' (should get 30)
 # - 'max_connections' (doesn't exist, use default 100)
 # - 'debug_mode' (doesn't exist, use default False)
-timeout = None  # Replace this
-max_connections = None  # Replace this
-debug_mode = None  # Replace this
+TIMEOUT = config.get('timeout', 0)
+MAX_CONNECTIONS = config.get('max_connections', 100)
+DEBUG_MODE = config.get('debug_mode', False)
 
-print(f"Timeout: {timeout}, Max Connections: {max_connections}, Debug: {debug_mode}")
+
+print(f"Timeout: {TIMEOUT}, Max Connections: {MAX_CONNECTIONS}, Debug: {DEBUG_MODE}")
 # Expected: Timeout: 30, Max Connections: 100, Debug: False
 
 
@@ -159,7 +159,7 @@ user_database = {
 }
 
 # TODO: Get all user IDs (keys) as a list
-all_user_ids = []  # Replace this
+all_user_ids = list(user_database.keys()) # Replace this
 
 print(f"All user IDs: {all_user_ids}")
 # Expected: ['U001', 'U002', 'U003']
@@ -172,7 +172,7 @@ event_data = {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '10:00'}
 
 # TODO: Find which required fields are missing from event_data
 # Hint: Check if each required field is in event_data.keys()
-missing_fields = []  # Replace with your code
+missing_fields = [key for key in required_fields if key not in event_data]  # Replace with your code
 
 print(f"Missing fields: {missing_fields}")
 # Expected: ['user_id']
@@ -224,7 +224,7 @@ print("\nExercise 3.1: Calculate Total Occupancy")
 occupancy_by_gate = {'gate_A': 45, 'gate_B': 32, 'gate_C': 28}
 
 # TODO: Calculate total people across all gates
-total_occupancy = 0  # Replace this
+total_occupancy = sum(occupancy_by_gate.values())
 
 print(f"Total people in venue: {total_occupancy}")
 # Expected: 105
@@ -242,7 +242,7 @@ ticket_status = {
 
 # TODO: Count how many tickets have 'entry' status
 # Hint: Use .values() and count
-entry_count = 0  # Replace this
+entry_count = list(ticket_status.values()).count('entry')
 
 print(f"Tickets with 'entry' status: {entry_count}")
 # Expected: 3
@@ -254,7 +254,8 @@ user_ages = {'Alice': 25, 'Bob': 30, 'Charlie': 22, 'Diana': 28}
 
 # TODO: Calculate the average age
 # Hint: sum() and len()
-average_age = 0  # Replace this
+average_age = sum(user_ages.values())/len(user_ages)
+
 
 print(f"Average age: {average_age:.1f}")
 # Expected: 26.2
@@ -307,7 +308,7 @@ gate_traffic = {'gate_A': 150, 'gate_B': 45, 'gate_C': 200, 'gate_D': 30}
 
 # TODO: Create a new dict with only gates that have more than 100 people
 # Use .items() to iterate
-busy_gates = {}  # Replace this
+busy_gates = {gate: people for gate, people in gate_traffic.items() if people > 100}
 
 print(f"Busy gates (>100 people): {busy_gates}")
 # Expected: {'gate_A': 150, 'gate_C': 200}
@@ -319,7 +320,8 @@ ticket_status = {'T001': 'entry', 'T002': 'exit', 'T003': 'entry'}
 
 # TODO: Create new dict where 'entry' = True and 'exit' = False
 # Use .items()
-is_inside = {}  # Replace this
+is_inside = {ticket: True if status == 'entry' else False
+             for ticket, status in ticket_status.items()}
 
 print(f"Is inside status: {is_inside}")
 # Expected: {'T001': True, 'T002': False, 'T003': True}
@@ -330,357 +332,357 @@ print("\nExercise 4.3: Reverse Mapping")
 ticket_to_user = {'T001': 'U123', 'T002': 'U456', 'T003': 'U789'}
 
 # TODO: Create a dict that maps user_id to ticket_id (swap keys and values)
-user_to_ticket = {}  # Replace this
+user_to_ticket = {v:k for k,v in ticket_to_user.items()}  # Replace this
 
 print(f"User to ticket mapping: {user_to_ticket}")
 # Expected: {'U123': 'T001', 'U456': 'T002', 'U789': 'T003'}
 
 
-# ==============================================================================
-# PART 2: SET OPERATIONS
-# ==============================================================================
+# # ==============================================================================
+# # PART 2: SET OPERATIONS
+# # ==============================================================================
 
-print("\n\n")
-print("=" * 70)
-print("PART 2: SET OPERATIONS")
-print("=" * 70)
+# print("\n\n")
+# print("=" * 70)
+# print("PART 2: SET OPERATIONS")
+# print("=" * 70)
 
-# ------------------------------------------------------------------------------
-# OPERATION 1: Creating Sets and add()
-# ------------------------------------------------------------------------------
-"""
-EXPLANATION:
-------------
-Sets store UNIQUE items with no duplicates. Use add() to insert items.
+# # ------------------------------------------------------------------------------
+# # OPERATION 1: Creating Sets and add()
+# # ------------------------------------------------------------------------------
+# """
+# EXPLANATION:
+# ------------
+# Sets store UNIQUE items with no duplicates. Use add() to insert items.
 
-SYNTAX:
-    my_set = set()           # Create empty set
-    my_set = {1, 2, 3}       # Create with items
-    my_set.add(item)         # Add single item
+# SYNTAX:
+#     my_set = set()           # Create empty set
+#     my_set = {1, 2, 3}       # Create with items
+#     my_set.add(item)         # Add single item
 
-WHY USE SETS:
-    - Automatic duplicate removal
-    - Fast membership checking (O(1))
-    - Track unique items
-    - Perfect for "who's inside" tracking
+# WHY USE SETS:
+#     - Automatic duplicate removal
+#     - Fast membership checking (O(1))
+#     - Track unique items
+#     - Perfect for "who's inside" tracking
 
-EXAMPLE:
-"""
-print("\n--- add() METHOD ---")
+# EXAMPLE:
+# """
+# print("\n--- add() METHOD ---")
 
-attendees = set()
+# attendees = set()
 
-# Adding items
-attendees.add('U123')
-attendees.add('U456')
-attendees.add('U123')  # Duplicate - won't be added again!
+# # Adding items
+# attendees.add('U123')
+# attendees.add('U456')
+# attendees.add('U123')  # Duplicate - won't be added again!
 
-print(f"✓ Attendees: {attendees}")  # Only 2 items
-print(f"✓ Count: {len(attendees)}")
+# print(f"✓ Attendees: {attendees}")  # Only 2 items
+# print(f"✓ Count: {len(attendees)}")
 
-# Fast membership check
-if 'U123' in attendees:
-    print("✓ U123 is in the set!")
+# # Fast membership check
+# if 'U123' in attendees:
+#     print("✓ U123 is in the set!")
 
-print("\n" + "=" * 70)
-print("EXERCISE 5: add() Practice")
-print("=" * 70)
+# print("\n" + "=" * 70)
+# print("EXERCISE 5: add() Practice")
+# print("=" * 70)
 
-# EXERCISE 5.1: Track Unique Visitors
-print("\nExercise 5.1: Count Unique Daily Visitors")
-daily_scans = ['U001', 'U002', 'U001', 'U003', 'U002', 'U001', 'U004']
+# # EXERCISE 5.1: Track Unique Visitors
+# print("\nExercise 5.1: Count Unique Daily Visitors")
+# daily_scans = ['U001', 'U002', 'U001', 'U003', 'U002', 'U001', 'U004']
 
-# TODO: Find how many unique users visited
-# Use a set!
-unique_visitors = set()  # Add your code
+# # TODO: Find how many unique users visited
+# # Use a set!
+# unique_visitors = set()  # Add your code
 
-print(f"Unique visitors: {len(unique_visitors)}")
-# Expected: 4
-
-
-# EXERCISE 5.2: Detect First-Time vs Returning
-print("\nExercise 5.2: Identify First-Time Visitors")
-known_users = {'U001', 'U002', 'U003'}
-today_scans = ['U001', 'U004', 'U002', 'U005']
-
-# TODO: Find which users are visiting for the first time
-# Hint: Check if each scan is NOT in known_users
-first_time_visitors = set()  # Add your code
-
-print(f"First-time visitors: {first_time_visitors}")
-# Expected: {'U004', 'U005'}
+# print(f"Unique visitors: {len(unique_visitors)}")
+# # Expected: 4
 
 
-# ------------------------------------------------------------------------------
-# OPERATION 2: discard() and remove()
-# ------------------------------------------------------------------------------
-"""
-EXPLANATION:
-------------
-Remove items from a set. ALWAYS prefer discard() over remove()!
+# # EXERCISE 5.2: Detect First-Time vs Returning
+# print("\nExercise 5.2: Identify First-Time Visitors")
+# known_users = {'U001', 'U002', 'U003'}
+# today_scans = ['U001', 'U004', 'U002', 'U005']
 
-SYNTAX:
-    my_set.discard(item)     # Safe - no error if item not in set
-    my_set.remove(item)      # Unsafe - crashes if item not in set
+# # TODO: Find which users are visiting for the first time
+# # Hint: Check if each scan is NOT in known_users
+# first_time_visitors = set()  # Add your code
 
-WHY USE discard():
-    - Doesn't crash if item doesn't exist
-    - Perfect for entry/exit tracking
-    - More robust code
-
-EXAMPLE:
-"""
-print("\n\n--- discard() vs remove() ---")
-
-people_inside = {'U123', 'U456', 'U789'}
-
-# Using discard - SAFE
-people_inside.discard('U123')  # Removes U123
-print(f"✓ After U123 exits: {people_inside}")
-
-people_inside.discard('U999')  # Not in set - no error!
-print(f"✓ After trying to remove U999: {people_inside}")
-
-# Using remove - RISKY
-try:
-    people_inside.remove('U999')  # Crashes!
-except KeyError:
-    print("❌ remove() crashed because U999 not in set!")
-
-print("\n" + "=" * 70)
-print("EXERCISE 6: discard() Practice")
-print("=" * 70)
-
-# EXERCISE 6.1: Track Entry/Exit
-print("\nExercise 6.1: Track Venue Occupancy")
-currently_inside = set()
-
-events = [
-    {'user_id': 'U001', 'action': 'entry'},
-    {'user_id': 'U002', 'action': 'entry'},
-    {'user_id': 'U001', 'action': 'exit'},
-    {'user_id': 'U003', 'action': 'entry'},
-    {'user_id': 'U002', 'action': 'exit'},
-]
-
-# TODO: Process events to track who's currently inside
-# Use add() for entries and discard() for exits
-for event in events:
-    pass  # Replace with your code
-
-print(f"Currently inside: {currently_inside}")
-# Expected: {'U003'}
+# print(f"First-time visitors: {first_time_visitors}")
+# # Expected: {'U004', 'U005'}
 
 
-# EXERCISE 6.2: Safe Removal
-print("\nExercise 6.2: Clean Up Old Users")
-active_users = {'U001', 'U002', 'U003', 'U004'}
-users_to_remove = ['U002', 'U005', 'U003', 'U006']  # Some don't exist!
+# # ------------------------------------------------------------------------------
+# # OPERATION 2: discard() and remove()
+# # ------------------------------------------------------------------------------
+# """
+# EXPLANATION:
+# ------------
+# Remove items from a set. ALWAYS prefer discard() over remove()!
 
-# TODO: Remove all users in users_to_remove from active_users
-# Use discard() so it doesn't crash on missing users
-# Your code here
+# SYNTAX:
+#     my_set.discard(item)     # Safe - no error if item not in set
+#     my_set.remove(item)      # Unsafe - crashes if item not in set
 
-print(f"Active users after cleanup: {active_users}")
-# Expected: {'U001', 'U004'}
+# WHY USE discard():
+#     - Doesn't crash if item doesn't exist
+#     - Perfect for entry/exit tracking
+#     - More robust code
 
+# EXAMPLE:
+# """
+# print("\n\n--- discard() vs remove() ---")
 
-# ------------------------------------------------------------------------------
-# OPERATION 3: Set Operations (union, intersection, difference)
-# ------------------------------------------------------------------------------
-"""
-EXPLANATION:
-------------
-Combine or compare sets using mathematical set operations.
+# people_inside = {'U123', 'U456', 'U789'}
 
-SYNTAX:
-    set1 | set2              # Union (all items from both)
-    set1 & set2              # Intersection (items in both)
-    set1 - set2              # Difference (items in set1 but not set2)
-    set1 ^ set2              # Symmetric difference (items in either but not both)
+# # Using discard - SAFE
+# people_inside.discard('U123')  # Removes U123
+# print(f"✓ After U123 exits: {people_inside}")
 
-WHY USE THEM:
-    - Find common visitors
-    - Find unique visitors
-    - Compare groups
+# people_inside.discard('U999')  # Not in set - no error!
+# print(f"✓ After trying to remove U999: {people_inside}")
 
-EXAMPLE:
-"""
-print("\n\n--- SET OPERATIONS ---")
+# # Using remove - RISKY
+# try:
+#     people_inside.remove('U999')  # Crashes!
+# except KeyError:
+#     print("❌ remove() crashed because U999 not in set!")
 
-monday_visitors = {'U001', 'U002', 'U003', 'U004'}
-tuesday_visitors = {'U003', 'U004', 'U005', 'U006'}
+# print("\n" + "=" * 70)
+# print("EXERCISE 6: discard() Practice")
+# print("=" * 70)
 
-# Union - all visitors across both days
-all_visitors = monday_visitors | tuesday_visitors
-print(f"✓ All visitors (union): {all_visitors}")
+# # EXERCISE 6.1: Track Entry/Exit
+# print("\nExercise 6.1: Track Venue Occupancy")
+# currently_inside = set()
 
-# Intersection - visitors on both days
-both_days = monday_visitors & tuesday_visitors
-print(f"✓ Visited both days (intersection): {both_days}")
+# events = [
+#     {'user_id': 'U001', 'action': 'entry'},
+#     {'user_id': 'U002', 'action': 'entry'},
+#     {'user_id': 'U001', 'action': 'exit'},
+#     {'user_id': 'U003', 'action': 'entry'},
+#     {'user_id': 'U002', 'action': 'exit'},
+# ]
 
-# Difference - only Monday, not Tuesday
-only_monday = monday_visitors - tuesday_visitors
-print(f"✓ Only Monday (difference): {only_monday}")
+# # TODO: Process events to track who's currently inside
+# # Use add() for entries and discard() for exits
+# for event in events:
+#     pass  # Replace with your code
 
-# Symmetric difference - visited exactly one day
-one_day_only = monday_visitors ^ tuesday_visitors
-print(f"✓ One day only (symmetric diff): {one_day_only}")
-
-print("\n" + "=" * 70)
-print("EXERCISE 7: Set Operations Practice")
-print("=" * 70)
-
-# EXERCISE 7.1: Find Regular Visitors
-print("\nExercise 7.1: Find People Who Attended All 3 Days")
-day1_visitors = {'U001', 'U002', 'U003', 'U004', 'U005'}
-day2_visitors = {'U002', 'U003', 'U005', 'U006'}
-day3_visitors = {'U003', 'U005', 'U007'}
-
-# TODO: Find visitors who came all 3 days
-# Use intersection (&)
-regular_visitors = set()  # Replace this
-
-print(f"Attended all 3 days: {regular_visitors}")
-# Expected: {'U003', 'U005'}
+# print(f"Currently inside: {currently_inside}")
+# # Expected: {'U003'}
 
 
-# EXERCISE 7.2: Find New Visitors
-print("\nExercise 7.2: Find Today's New Visitors")
-previous_visitors = {'U001', 'U002', 'U003', 'U004'}
-today_visitors = {'U003', 'U004', 'U005', 'U006', 'U007'}
+# # EXERCISE 6.2: Safe Removal
+# print("\nExercise 6.2: Clean Up Old Users")
+# active_users = {'U001', 'U002', 'U003', 'U004'}
+# users_to_remove = ['U002', 'U005', 'U003', 'U006']  # Some don't exist!
 
-# TODO: Find who visited today but never before
-# Use difference (-)
-new_today = set()  # Replace this
+# # TODO: Remove all users in users_to_remove from active_users
+# # Use discard() so it doesn't crash on missing users
+# # Your code here
 
-print(f"New visitors today: {new_today}")
-# Expected: {'U005', 'U006', 'U007'}
-
-
-# EXERCISE 7.3: Find VIP and Regular Split
-print("\nExercise 7.3: Categorize Ticket Types")
-vip_ticket_holders = {'U001', 'U002', 'U003'}
-all_attendees = {'U001', 'U002', 'U003', 'U004', 'U005', 'U006'}
-
-# TODO: Find who has regular (non-VIP) tickets
-# Use difference (-)
-regular_ticket_holders = set()  # Replace this
-
-print(f"VIP tickets: {vip_ticket_holders}")
-print(f"Regular tickets: {regular_ticket_holders}")
-# Expected Regular: {'U004', 'U005', 'U006'}
+# print(f"Active users after cleanup: {active_users}")
+# # Expected: {'U001', 'U004'}
 
 
-# ==============================================================================
-# PART 3: COMBINED CHALLENGES
-# ==============================================================================
+# # ------------------------------------------------------------------------------
+# # OPERATION 3: Set Operations (union, intersection, difference)
+# # ------------------------------------------------------------------------------
+# """
+# EXPLANATION:
+# ------------
+# Combine or compare sets using mathematical set operations.
 
-print("\n\n")
-print("=" * 70)
-print("PART 3: COMBINED CHALLENGES - Using Dicts AND Sets Together")
-print("=" * 70)
+# SYNTAX:
+#     set1 | set2              # Union (all items from both)
+#     set1 & set2              # Intersection (items in both)
+#     set1 - set2              # Difference (items in set1 but not set2)
+#     set1 ^ set2              # Symmetric difference (items in either but not both)
 
-# CHALLENGE 1: Real-World Occupancy Tracker
-print("\nCHALLENGE 1: Complete Occupancy System")
-print("-" * 70)
+# WHY USE THEM:
+#     - Find common visitors
+#     - Find unique visitors
+#     - Compare groups
 
-def process_venue_events(events):
-    """
-    Process a stream of entry/exit events and return statistics.
+# EXAMPLE:
+# """
+# print("\n\n--- SET OPERATIONS ---")
+
+# monday_visitors = {'U001', 'U002', 'U003', 'U004'}
+# tuesday_visitors = {'U003', 'U004', 'U005', 'U006'}
+
+# # Union - all visitors across both days
+# all_visitors = monday_visitors | tuesday_visitors
+# print(f"✓ All visitors (union): {all_visitors}")
+
+# # Intersection - visitors on both days
+# both_days = monday_visitors & tuesday_visitors
+# print(f"✓ Visited both days (intersection): {both_days}")
+
+# # Difference - only Monday, not Tuesday
+# only_monday = monday_visitors - tuesday_visitors
+# print(f"✓ Only Monday (difference): {only_monday}")
+
+# # Symmetric difference - visited exactly one day
+# one_day_only = monday_visitors ^ tuesday_visitors
+# print(f"✓ One day only (symmetric diff): {one_day_only}")
+
+# print("\n" + "=" * 70)
+# print("EXERCISE 7: Set Operations Practice")
+# print("=" * 70)
+
+# # EXERCISE 7.1: Find Regular Visitors
+# print("\nExercise 7.1: Find People Who Attended All 3 Days")
+# day1_visitors = {'U001', 'U002', 'U003', 'U004', 'U005'}
+# day2_visitors = {'U002', 'U003', 'U005', 'U006'}
+# day3_visitors = {'U003', 'U005', 'U007'}
+
+# # TODO: Find visitors who came all 3 days
+# # Use intersection (&)
+# regular_visitors = set()  # Replace this
+
+# print(f"Attended all 3 days: {regular_visitors}")
+# # Expected: {'U003', 'U005'}
+
+
+# # EXERCISE 7.2: Find New Visitors
+# print("\nExercise 7.2: Find Today's New Visitors")
+# previous_visitors = {'U001', 'U002', 'U003', 'U004'}
+# today_visitors = {'U003', 'U004', 'U005', 'U006', 'U007'}
+
+# # TODO: Find who visited today but never before
+# # Use difference (-)
+# new_today = set()  # Replace this
+
+# print(f"New visitors today: {new_today}")
+# # Expected: {'U005', 'U006', 'U007'}
+
+
+# # EXERCISE 7.3: Find VIP and Regular Split
+# print("\nExercise 7.3: Categorize Ticket Types")
+# vip_ticket_holders = {'U001', 'U002', 'U003'}
+# all_attendees = {'U001', 'U002', 'U003', 'U004', 'U005', 'U006'}
+
+# # TODO: Find who has regular (non-VIP) tickets
+# # Use difference (-)
+# regular_ticket_holders = set()  # Replace this
+
+# print(f"VIP tickets: {vip_ticket_holders}")
+# print(f"Regular tickets: {regular_ticket_holders}")
+# # Expected Regular: {'U004', 'U005', 'U006'}
+
+
+# # ==============================================================================
+# # PART 3: COMBINED CHALLENGES
+# # ==============================================================================
+
+# print("\n\n")
+# print("=" * 70)
+# print("PART 3: COMBINED CHALLENGES - Using Dicts AND Sets Together")
+# print("=" * 70)
+
+# # CHALLENGE 1: Real-World Occupancy Tracker
+# print("\nCHALLENGE 1: Complete Occupancy System")
+# print("-" * 70)
+
+# def process_venue_events(events):
+#     """
+#     Process a stream of entry/exit events and return statistics.
     
-    Args:
-        events: List of dicts with 'user_id', 'gate', 'action' ('entry'/'exit')
+#     Args:
+#         events: List of dicts with 'user_id', 'gate', 'action' ('entry'/'exit')
     
-    Returns:
-        dict with:
-            - 'currently_inside': set of user_ids currently in venue
-            - 'total_entries': total entry count
-            - 'total_exits': total exit count
-            - 'entries_by_gate': dict of gate -> entry count
-            - 'peak_occupancy': highest number of people inside at once
-    """
-    # TODO: Implement this function
-    # You'll need: sets for tracking who's inside, dicts for counting
+#     Returns:
+#         dict with:
+#             - 'currently_inside': set of user_ids currently in venue
+#             - 'total_entries': total entry count
+#             - 'total_exits': total exit count
+#             - 'entries_by_gate': dict of gate -> entry count
+#             - 'peak_occupancy': highest number of people inside at once
+#     """
+#     # TODO: Implement this function
+#     # You'll need: sets for tracking who's inside, dicts for counting
     
-    currently_inside = set()
-    total_entries = 0
-    total_exits = 0
-    entries_by_gate = {}
-    peak_occupancy = 0
+#     currently_inside = set()
+#     total_entries = 0
+#     total_exits = 0
+#     entries_by_gate = {}
+#     peak_occupancy = 0
     
-    # Your code here
+#     # Your code here
     
-    return {
-        'currently_inside': currently_inside,
-        'total_entries': total_entries,
-        'total_exits': total_exits,
-        'entries_by_gate': entries_by_gate,
-        'peak_occupancy': peak_occupancy
-    }
+#     return {
+#         'currently_inside': currently_inside,
+#         'total_entries': total_entries,
+#         'total_exits': total_exits,
+#         'entries_by_gate': entries_by_gate,
+#         'peak_occupancy': peak_occupancy
+#     }
 
-# Test data
-test_events = [
-    {'user_id': 'U001', 'gate': 'A', 'action': 'entry'},
-    {'user_id': 'U002', 'gate': 'B', 'action': 'entry'},
-    {'user_id': 'U003', 'gate': 'A', 'action': 'entry'},
-    {'user_id': 'U001', 'gate': 'A', 'action': 'exit'},
-    {'user_id': 'U004', 'gate': 'B', 'action': 'entry'},
-    {'user_id': 'U002', 'gate': 'B', 'action': 'exit'},
-]
+# # Test data
+# test_events = [
+#     {'user_id': 'U001', 'gate': 'A', 'action': 'entry'},
+#     {'user_id': 'U002', 'gate': 'B', 'action': 'entry'},
+#     {'user_id': 'U003', 'gate': 'A', 'action': 'entry'},
+#     {'user_id': 'U001', 'gate': 'A', 'action': 'exit'},
+#     {'user_id': 'U004', 'gate': 'B', 'action': 'entry'},
+#     {'user_id': 'U002', 'gate': 'B', 'action': 'exit'},
+# ]
 
-result = process_venue_events(test_events)
-print(f"Result: {result}")
-# Expected: {
-#     'currently_inside': {'U003', 'U004'},
-#     'total_entries': 4,
-#     'total_exits': 2,
-#     'entries_by_gate': {'A': 2, 'B': 2},
-#     'peak_occupancy': 3
-# }
+# result = process_venue_events(test_events)
+# print(f"Result: {result}")
+# # Expected: {
+# #     'currently_inside': {'U003', 'U004'},
+# #     'total_entries': 4,
+# #     'total_exits': 2,
+# #     'entries_by_gate': {'A': 2, 'B': 2},
+# #     'peak_occupancy': 3
+# # }
 
 
-# CHALLENGE 2: Anomaly Detection
-print("\n\nCHALLENGE 2: Detect Suspicious Activity")
-print("-" * 70)
+# # CHALLENGE 2: Anomaly Detection
+# print("\n\nCHALLENGE 2: Detect Suspicious Activity")
+# print("-" * 70)
 
-def detect_suspicious_scans(events):
-    """
-    Find suspicious scanning patterns:
-    - Users who exited without entering
-    - Users who tried to enter while already inside
+# def detect_suspicious_scans(events):
+#     """
+#     Find suspicious scanning patterns:
+#     - Users who exited without entering
+#     - Users who tried to enter while already inside
     
-    Args:
-        events: List of dicts with 'user_id' and 'action'
+#     Args:
+#         events: List of dicts with 'user_id' and 'action'
     
-    Returns:
-        dict with 'exit_without_entry' and 'double_entry' sets
-    """
-    # TODO: Implement this
-    # Hint: Track who's inside, check for invalid transitions
+#     Returns:
+#         dict with 'exit_without_entry' and 'double_entry' sets
+#     """
+#     # TODO: Implement this
+#     # Hint: Track who's inside, check for invalid transitions
     
-    currently_inside = set()
-    exit_without_entry = set()
-    double_entry = set()
+#     currently_inside = set()
+#     exit_without_entry = set()
+#     double_entry = set()
     
-    # Your code here
+#     # Your code here
     
-    return {
-        'exit_without_entry': exit_without_entry,
-        'double_entry': double_entry
-    }
+#     return {
+#         'exit_without_entry': exit_without_entry,
+#         'double_entry': double_entry
+#     }
 
-# Test data
-suspicious_events = [
-    {'user_id': 'U001', 'action': 'entry'},
-    {'user_id': 'U002', 'action': 'exit'},      # Suspicious: exit without entry
-    {'user_id': 'U001', 'action': 'entry'},     # Suspicious: already inside
-    {'user_id': 'U003', 'action': 'entry'},
-    {'user_id': 'U003', 'action': 'exit'},
-]
+# # Test data
+# suspicious_events = [
+#     {'user_id': 'U001', 'action': 'entry'},
+#     {'user_id': 'U002', 'action': 'exit'},      # Suspicious: exit without entry
+#     {'user_id': 'U001', 'action': 'entry'},     # Suspicious: already inside
+#     {'user_id': 'U003', 'action': 'entry'},
+#     {'user_id': 'U003', 'action': 'exit'},
+# ]
 
-suspicious_result = detect_suspicious_scans(suspicious_events)
-print(f"Suspicious activity: {suspicious_result}")
+# suspicious_result = detect_suspicious_scans(suspicious_events)
+# print(f"Suspicious activity: {suspicious_result}")
 # Expected: {
 #     'exit_without_entry': {'U002'},
 #     'double_entry': {'U001'}
