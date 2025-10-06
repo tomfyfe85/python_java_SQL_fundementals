@@ -1,0 +1,27 @@
+{
+    "editor.tokenColorCustomizations": {
+        "textMateRules": [
+            {
+                "scope": "string",
+                "settings": {
+                    "foreground": "#22C55E"
+                }
+            },
+            {
+                "scope": "meta.structure.dictionary.key.python",
+                "settings": {
+                    "foreground": "#22C55E"
+                }
+            },
+            {
+                "scope": "meta.structure.dictionary.value.python string",
+                "settings": {
+                    "foreground": "#22C55E"
+                }
+            }
+        ]
+    },
+    "pylint.args": [
+        "--disable=W0105"
+    ]
+}
