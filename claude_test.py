@@ -39,7 +39,7 @@ def mock_occupancy_stream():
 
 def count_current_occupancy(stream):
     """
-    Count how many people are currently inside the venue.
+   Count how many people are currently inside the venue.
     
     Args:
         stream: Iterator/generator yielding event dictionaries
@@ -58,14 +58,15 @@ def count_current_occupancy(stream):
     - U222: entered (INSIDE)
     - U333: entered (INSIDE)
     - U444: entered (INSIDE)
-    Total inside: 3 people
+    Total inside: 3 people 
     """
     occupancy_tracker = {}
 
     for event in stream:
-        occupancy_tracker[event['ticket_id']] = event['scan_type']
-        print('occupancy_tracker', occupancy_tracker)
-    return sum(1 for status in occupancy_tracker.values() if status == 'entry' )
+        scan_type = event['scan_type']
+        
+        occupancy_tracker[scan_type] = occupancy_tracker.get(scan_type, 0) + 1
+    return sum(1 for status in occupancy_tracker.items() if status == 'entry' )
 
 
 # def get_occupancy_statistics(stream):
