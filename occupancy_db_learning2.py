@@ -148,10 +148,10 @@ def count_current_occupancy_db():
 
     query = """
     WITH current_occupancy AS (
-    SELECT DISTINCT ON(user_id) user_id, scan_type
-    FROM scans
-    ORDER BY user_id, scan_time DESC
-    )
+        SELECT DISTINCT ON(user_id) user_id, scan_type
+        FROM scans
+        ORDER BY user_id, scan_time DESC
+        )
     SELECT COUNT(*) 
     FROM current_occupancy 
     WHERE scan_type = 'entry';
@@ -169,18 +169,52 @@ def count_current_occupancy_db():
 
 
 def get_occupancy_statistics(stream):
+
     """
     Get comprehensive occupancy statistics.
-    Expected: {
+    
+    Args:
+        stream: Iterator/generator yielding event dictionaries
+    
+    Returns:
+        dict with keys:
+            - current_occupancy: number of people currently inside
+            - total_entries: total entry scans processed
+            - total_exits: total exit scans processed
+            - max_occupancy: maximum number of people inside at any point
+    
+    Expected output: {
         'current_occupancy': 3,
         'total_entries': 8,
         'total_exits': 4,
         'max_occupancy': 5
     }
     """
-    # TODO: Implement this
-    pass
+    current_users_present = set()
+    total_entry_count = 0
+    total_exit_count = 0
+    max_occupancy_count = 0
 
+    for event in stream:
+        user_id = event['user_id']
+        scan_type = event['scan_type']
+
+        if scan_type == 'entry':
+            current_users_present.add(user_id)
+            total_entry_count += 1
+        else:
+            current_users_present.discard(user_id)
+            total_exit_count += 1
+
+        max_occupancy_count = max(max_occupancy_count, len(current_users_present))
+        print(max_occupancy_count)
+
+    return {
+        'current_occupancy': len(current_users_present),
+        'total_entries': total_entry_count,
+        'total_exits': total_exit_count,
+        'max_occupancy': max_occupancy_count
+    }
 
 """
 📚 DATABASE LEARNING - QUESTION 2
@@ -640,3 +674,4 @@ if __name__ == "__main__":
     print("=" * 60)
     populate_database()
     print('count_current_occupancy_db() result: ', count_current_occupancy_db())
+    print('get_occupancy_statistics() result: ', get_occupancy_statistics(mock_occupancy_stream()))
