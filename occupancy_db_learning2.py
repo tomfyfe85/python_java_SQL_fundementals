@@ -1,12 +1,10 @@
-"""
 # Event Occupancy Practice Test with Database Learning
 # =====================================================
 # Learn SQL and database concepts while solving occupancy problems
-"""
 
+# from datetime import datetime
+# from typing import Dict, List, Set, Optional
 import psycopg2
-from datetime import datetime
-from typing import Dict, List, Set, Optional
 
 # MOCK EVENT STREAM (same as original)
 def mock_occupancy_stream():
@@ -30,43 +28,54 @@ def mock_occupancy_stream():
 
 
 # ===========================================================================
+# DATABASE SETUP - RUN THIS FIRST!
+# ===========================================================================
+
+def populate_database():
+    """
+    IMPORTANT: Run this function ONCE to fill your database with test data!
+    This takes the mock event stream and puts it into your PostgreSQL database.
+    """
+    conn = psycopg2.connect("dbname=event_venue user=tomfyfe")
+    cursor = conn.cursor()
+
+    # Clear any existing data (start fresh)
+    cursor.execute("DELETE FROM scans")
+
+    # Add all events from the mock stream to database
+    for event in mock_occupancy_stream():
+        cursor.execute("""
+            INSERT INTO scans (ticket_id, user_id, gate, scan_type, scan_time)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (
+            event['ticket_id'],
+            event['user_id'],
+            event['gate'],
+            event['scan_type'],
+            event['timestamp']
+        ))
+
+    # Save all the inserts
+    conn.commit()
+    conn.close()
+    return
+
+# ===========================================================================
 # QUESTION 1: Basic Occupancy Count
 # ===========================================================================
 
 def count_current_occupancy(stream):
-    """
-      Count how many people are currently inside the venue.
-    
-    Args:
-        stream: Iterator/generator yielding event dictionaries
-    
-    Returns:
-        int: Number of people currently inside
-    
-    After all events:
-    - U123: entered then exited (NOT inside)
-    - U456: entered then exited (NOT inside)  
-    - U789: entered, tried to enter again, then exited (NOT inside)
-    - U111: entered then exited (NOT inside)
-    - U222: entered (INSIDE)
-    - U333: entered (INSIDE)
-    - U444: entered (INSIDE)
-    Total inside: 3 people
-    
-    Count how many people are currently inside the venue.
-    Expected output: 3 people still inside (U222, U333, U444)
-    """
-    occupancy_tracker = set()
+    current_occupancy = set()
+
+
     for event in stream:
-        scan_type = event["scan_type"]
-        user_id = event["user_id"]
-        
+        user_id = event['user_id']
+        scan_type = event['scan_type']
         if scan_type == 'entry':
-            occupancy_tracker.add(user_id)
+            current_occupancy.add(user_id)
         else:
-            occupancy_tracker.discard(user_id)
-    return len(occupancy_tracker)
-print(count_current_occupancy(mock_occupancy_stream()))
+            current_occupancy.discard(user_id)
+    return len(current_occupancy)
 
 """
 📚 DATABASE LEARNING - QUESTION 1
@@ -109,7 +118,7 @@ Step 3: INSERT data (the C in CRUD - Create)
 INSERT INTO scans (ticket_id, user_id, gate, scan_type, scan_time)
 VALUES ('T001', 'U123', 'A', 'entry', '2025-09-30 10:00:00');
 
-Try inserting a few more events from the mock data!
+Try inserting a few more events from the mock data! 
 
 Step 4: READ data (the R in CRUD)
 ----------------------------------
@@ -121,6 +130,8 @@ def count_current_occupancy_db():
     """
     DATABASE CHALLENGE 1: Write a SQL query to find who's currently inside.
     
+    ⚠️ PREREQUISITE: Run populate_database() first to add data!
+    
     Hint: For each person, you need to check:
     - Did they enter? (last scan_type = 'entry')
     - Did they leave after entering? (compare timestamps)
@@ -131,25 +142,31 @@ def count_current_occupancy_db():
     🤔 Real scenario: What if someone loses their ticket and security lets them in?
     How would you record this in the database?
     """
-    
-    conn = psycopg2.connect("dbname=event_venue user=your_username")
+
+    conn = psycopg2.connect("dbname=event_venue user=tomfyfe")
     cursor = conn.cursor()
-    
-    # TODO: Write your SQL query here
+
     query = """
-    -- Your SQL here
+    WITH current_occupancy AS (
+    SELECT DISTINCT ON(user_id) user_id, scan_type
+    FROM scans
+    ORDER BY user_id, scan_time DESC
+    )
+    SELECT COUNT(*) 
+    FROM current_occupancy 
+    WHERE scan_type = 'entry';
     """
-    
+
     cursor.execute(query)
     result = cursor.fetchone()
     conn.close()
-    
-    return result[0] if result else 0
 
+    return result[0] if result else 0
 
 # ===========================================================================
 # QUESTION 2: Occupancy Statistics
 # ===========================================================================
+
 
 def get_occupancy_statistics(stream):
     """
@@ -230,12 +247,12 @@ def get_occupancy_statistics_db():
     🤔 Real scenario: What if someone tailgates (follows someone in without scanning)?
     How would this affect your statistics? How could you detect it?
     """
-
+    
     conn = psycopg2.connect("dbname=event_venue user=your_username")
     cursor = conn.cursor()
-
+    
     stats = {}
-
+    
     # TODO: Query for total entries
     cursor.execute("SELECT COUNT(*) FROM scans WHERE scan_type = ?")
     stats['total_entries'] = cursor.fetchone()[0]
@@ -621,9 +638,5 @@ if __name__ == "__main__":
     print("=" * 60)
     print("EVENT OCCUPANCY TEST WITH DATABASE LEARNING")
     print("=" * 60)
-    print("\nComplete each function and its database challenge!")
-    print("Remember to create your database first: createdb event_venue")
-    print("\nRun each test to check your implementation:")
-
-    # Test functions would go here
-    # Each test should work with both the stream and database versions
+    populate_database()
+    print('count_current_occupancy_db() result: ', count_current_occupancy_db())
