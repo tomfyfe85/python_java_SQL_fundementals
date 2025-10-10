@@ -37,36 +37,36 @@ def mock_occupancy_stream():
 # YOUR TASK: Implement these functions
 # =====================================
 
-def count_current_occupancy(stream):
-    """
-   Count how many people are currently inside the venue.
+# def count_current_occupancy(stream):
+#     """
+#    Count how many people are currently inside the venue.
     
-    Args:
-        stream: Iterator/generator yielding event dictionaries
+#     Args:
+#         stream: Iterator/generator yielding event dictionaries
     
-    Returns:
-        int: Number of people currently inside
+#     Returns:
+#         int: Number of people currently inside
     
-    Expected output: 4 people still inside (U222, U333, U444, and U789 if counted only once)
-    Note: U789 entered twice but should only count as 1 person inside
+#     Expected output: 4 people still inside (U222, U333, U444, and U789 if counted only once)
+#     Note: U789 entered twice but should only count as 1 person inside
     
-    After all events:
-    - U123: entered then exited (NOT inside)
-    - U456: entered then exited (NOT inside)  
-    - U789: entered, tried to enter again, then exited (NOT inside)
-    - U111: entered then exited (NOT inside)
-    - U222: entered (INSIDE)
-    - U333: entered (INSIDE)
-    - U444: entered (INSIDE)
-    Total inside: 3 people 
-    """
-    occupancy_tracker = {}
+#     After all events:
+#     - U123: entered then exited (NOT inside)
+#     - U456: entered then exited (NOT inside)  
+#     - U789: entered, tried to enter again, then exited (NOT inside)
+#     - U111: entered then exited (NOT inside)
+#     - U222: entered (INSIDE)
+#     - U333: entered (INSIDE)
+#     - U444: entered (INSIDE)
+#     Total inside: 3 people 
+#     """
+#     occupancy_tracker = {}
 
-    for event in stream:
-        scan_type = event['scan_type']
+#     for event in stream:
+#         scan_type = event['scan_type']
         
-        occupancy_tracker[scan_type] = occupancy_tracker.get(scan_type, 0) + 1
-    return sum(1 for status in occupancy_tracker.items() if status == 'entry' )
+#         occupancy_tracker[scan_type] = occupancy_tracker.get(scan_type, 0) + 1
+#     return sum(1 for status in occupancy_tracker.items() if status == 'entry' )
 
 
 # def get_occupancy_statistics(stream):
@@ -101,26 +101,26 @@ def count_current_occupancy(stream):
 #     pass
 
 
-# def count_occupancy_by_gate(stream):
-#     """
-#     Track current occupancy at each gate separately.
-#     Note: People are tracked by the LAST gate they used.
+def count_occupancy_by_gate(stream):
+    """
+    Track current occupancy at each gate separately.
+    Note: People are tracked by the LAST gate they used.
     
-#     Args:
-#         stream: Iterator/generator yielding event dictionaries
+    Args:
+        stream: Iterator/generator yielding event dictionaries
     
-#     Returns:
-#         dict: Gate ID -> number of people currently at that gate
+    Returns:
+        dict: Gate ID -> number of people currently at that gate
     
-#     Expected output: {'A': 1, 'B': 1, 'C': 1}
+    Expected output: {'A': 1, 'B': 1, 'C': 1}
     
-#     Reasoning (tracking last gate used):
-#     - U222: last used gate B for entry (at gate B)
-#     - U333: last used gate A for entry (at gate A)
-#     - U444: last used gate C for entry (at gate C)
-#     """
-#     # TODO: Implement this
-#     pass
+    Reasoning (tracking last gate used):
+    - U222: last used gate B for entry (at gate B)
+    - U333: last used gate A for entry (at gate A)
+    - U444: last used gate C for entry (at gate C)
+    """
+    # TODO: Implement this
+    pass
 
 
 # def find_people_still_inside(stream):

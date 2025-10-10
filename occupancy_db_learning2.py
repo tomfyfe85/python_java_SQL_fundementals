@@ -170,26 +170,6 @@ def count_current_occupancy_db():
 
 def get_occupancy_statistics(stream):
 
-    """
-    Get comprehensive occupancy statistics.
-    
-    Args:
-        stream: Iterator/generator yielding event dictionaries
-    
-    Returns:
-        dict with keys:
-            - current_occupancy: number of people currently inside
-            - total_entries: total entry scans processed
-            - total_exits: total exit scans processed
-            - max_occupancy: maximum number of people inside at any point
-    
-    Expected output: {
-        'current_occupancy': 3,
-        'total_entries': 8,
-        'total_exits': 4,
-        'max_occupancy': 5
-    }
-    """
     current_users_present = set()
     total_entry_count = 0
     total_exit_count = 0
@@ -207,7 +187,6 @@ def get_occupancy_statistics(stream):
             total_exit_count += 1
 
         max_occupancy_count = max(max_occupancy_count, len(current_users_present))
-        print(max_occupancy_count)
 
     return {
         'current_occupancy': len(current_users_present),
@@ -303,11 +282,36 @@ def get_occupancy_statistics_db():
 
 def count_occupancy_by_gate(stream):
     """
-    Track current occupancy at each gate.
-    Expected: {'A': 1, 'B': 1, 'C': 1}
+    Track current occupancy at each gate separately.
+    Note: People are tracked by the LAST gate they u    
+    Args:
+        stream: Iterator/generator yielding event dictiona  
+    Returns:
+        dict: Gate ID -> number of people currently at that     
+    Expected output: {'A': 1, 'B': 1, 'C'   
+    Reasoning (tracking last gate used):
+    - U222: last used gate B for entry (at gate B)
+    - U333: last used gate A for entry (at gate A)
+    - U444: last used gate C for entry (at gate C)
     """
-    # TODO: Implement this
-    pass
+    current_occupancy_per_gate = {}
+    current_occupancy = set()
+
+    for event in stream:
+        user_id = event['user_id']
+        scan_type = event['scan_type']
+        gate = event['gate']
+        
+        if scan_type == 'entry' and user_id not in current_occupancy:
+            current_occupancy.add(user_id)
+            current_occupancy_per_gate[gate] = current_occupancy_per_gate.get(gate, 0) + 1
+        elif scan_type == 'entry' and user_id in current_occupancy:
+            continue
+        else:
+            current_occupancy.discard(user_id)
+            current_occupancy_per_gate[gate] = current_occupancy_per_gate.get(gate, 0) - 1
+    return current_occupancy_per_gate
+
 
 
 """
@@ -675,3 +679,4 @@ if __name__ == "__main__":
     populate_database()
     print('count_current_occupancy_db() result: ', count_current_occupancy_db())
     print('get_occupancy_statistics() result: ', get_occupancy_statistics(mock_occupancy_stream()))
+    print('count_occupancy_by_gate() result: ', count_occupancy_by_gate(mock_occupancy_stream()))
