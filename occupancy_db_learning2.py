@@ -2,8 +2,8 @@
 # =====================================================
 # Learn SQL and database concepts while solving occupancy problems
 
-# from datetime import datetime
-# from typing import Dict, List, Set, Optional
+from datetime import datetime
+from typing import Dict, List, Set, Optional
 import psycopg2
 
 # MOCK EVENT STREAM (same as original)
@@ -493,13 +493,23 @@ def find_people_still_inside_db():
 
 def detect_anomalies(stream):
     """
-    Detect suspicious patterns.
-    Expected: {
+    Detect suspicious scanning patterns:
+    - People who exited without entering
+    - People who tried to enter while already in    
+    Args:
+        stream: Iterator/generator yielding event dictiona  
+    Returns:
+        dict with keys:
+            - exit_without_entry: set of user IDs who exited without entering
+            - duplicate_entries: set of user IDs who tried to enter while already in    
+    Expected output: {
         'exit_without_entry': set(),
         'duplicate_entries': {'U789'}
-    }
+
+    U789 entered at 10:02, then tried to enter again at 11:15 (duplicate entry attempt)
     """
-    # TODO: Implement this
+    # people who have exited with out entering-
+    # - check for ticket_id that have 
     pass
 
 
