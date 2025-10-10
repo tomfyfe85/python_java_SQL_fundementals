@@ -67,7 +67,6 @@ def populate_database():
 def count_current_occupancy(stream):
     current_occupancy = set()
 
-
     for event in stream:
         user_id = event['user_id']
         scan_type = event['scan_type']
@@ -392,11 +391,24 @@ def count_occupancy_by_gate_db():
 
 def find_people_still_inside(stream):
     """
-    Return the IDs of people who are still inside.
-    Expected: {'U222', 'U333', 'U444'}
+    Return the IDs of people who are still inside the venue.
+    
+    Args:
+        stream: Iterator/generator yielding event dictionaries
+    
+    Returns:
+        set: User IDs of people currently inside
     """
-    # TODO: Implement this
-    pass
+    current_occupancy = set()
+
+    for event in stream:
+        user_id = event['user_id']
+        scan_type = event['scan_type']
+        if scan_type == 'entry':
+            current_occupancy.add(user_id)
+        else:
+            current_occupancy.discard(user_id)
+    return current_occupancy
 
 
 """
@@ -680,3 +692,4 @@ if __name__ == "__main__":
     print('count_current_occupancy_db() result: ', count_current_occupancy_db())
     print('get_occupancy_statistics() result: ', get_occupancy_statistics(mock_occupancy_stream()))
     print('count_occupancy_by_gate() result: ', count_occupancy_by_gate(mock_occupancy_stream()))
+    print('find_people_still_inside() result: ', find_people_still_inside(mock_occupancy_stream()))

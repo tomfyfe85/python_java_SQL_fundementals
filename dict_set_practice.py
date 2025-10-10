@@ -159,7 +159,7 @@ user_database = {
 }
 
 # TODO: Get all user IDs (keys) as a list
-all_user_ids = list(user_database.keys()) 
+all_user_ids = list(user_database.keys())
 
 print(f"All user IDs: {all_user_ids}")
 # Expected: ['U001', 'U002', 'U003']
