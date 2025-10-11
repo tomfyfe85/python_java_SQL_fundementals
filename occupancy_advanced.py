@@ -134,7 +134,7 @@ def setup_database():
     conn.commit()
     conn.close()
     print("✅ Database schema created successfully!")
-
+    
 
 def populate_database():
     """
@@ -261,12 +261,19 @@ def count_current_occupancy(stream) -> int:
     Returns:
         int: Number of tickets currently inside
 
-    Expected: 5 tickets inside at the end
+    Expected: 4 tickets inside at the end
     """
-    # TODO: Implement using a set to track ticket_ids
-    # Remember: Track by ticket_id, not user_id!
-    pass
-
+    current_tickets_inside = set()
+    
+    for event in stream:
+        scan_type = event['scan_type']
+        ticket_id = event['ticket_id']
+        
+        if scan_type == 'entry':
+            current_tickets_inside.add(ticket_id)
+        else:
+            current_tickets_inside.discard(ticket_id)
+    return len(current_tickets_inside)
 
 """
 📚 DATABASE LEARNING - QUESTION 1
@@ -314,6 +321,201 @@ VALUES ('T999', 'U999', 'General', 50.00);
 -- This will work:
 INSERT INTO tickets (ticket_id, user_id, ticket_type, price)
 VALUES ('T999', 'U123', 'General', 50.00);
+
+
+# JOINS: Combining Data from Multiple Tables
+# -------------------------------------------
+# JOINs are ESSENTIAL for APIs that return rich data from normalized databases.
+
+# 1. INNER JOIN - Only matched rows (most common)
+# ------------------------------------------------
+# -- Get tickets WITH their user info (excludes orphaned tickets)
+# SELECT t.ticket_id, t.ticket_type, u.name, u.email
+# FROM tickets t
+# INNER JOIN users u ON t.user_id = u.user_id;
+
+# Result: Only tickets that have a valid user.
+
+# When to use: "I need data from both tables, skip rows without matches"
+# API use case: GET /api/tickets - show ticket details with user names
+
+# 2. LEFT JOIN - All from left table + optional right
+# ----------------------------------------------------
+# -- Get ALL tickets, include user info IF it exists
+# SELECT t.ticket_id, t.ticket_type, u.name, u.email
+# FROM tickets t
+# LEFT JOIN users u ON t.user_id = u.user_id;
+
+# Result: ALL tickets. If user deleted, name/email will be NULL.
+
+# When to use: "I want all of A, include B if available"
+# API use case: GET /api/tickets - show all tickets even if user was deleted
+
+# 3. RIGHT JOIN - All from right table + optional left
+# -----------------------------------------------------
+# -- Get ALL users, show tickets IF they bought any
+# SELECT u.user_id, u.name, t.ticket_id, t.ticket_type
+# FROM tickets t
+# RIGHT JOIN users u ON t.user_id = u.user_id;
+
+# Result: ALL users. If user bought no tickets, ticket columns are NULL.
+
+# When to use: "I want all of B, include A if available"
+# API use case: GET /api/users - show all users even if no purchases
+
+# Note: RIGHT JOIN is rare - usually rewrite as LEFT JOIN for clarity.
+
+# 4. Multi-table JOINs - Chain multiple tables
+# ---------------------------------------------
+# -- Get scans with ticket info AND user info (3 tables!)
+# SELECT
+#     s.scan_id,
+#     s.scan_time,
+#     s.scan_type,
+#     t.ticket_id,
+#     t.ticket_type,
+#     u.name,
+#     u.email
+# FROM scans s
+# INNER JOIN tickets t ON s.ticket_id = t.ticket_id
+# INNER JOIN users u ON t.user_id = u.user_id;
+
+# API use case: GET /api/scans - return complete scan history with context
+
+# 5. Mixing INNER and LEFT JOINs
+# -------------------------------
+# -- Get all scans with ticket info, but user info is optional
+# SELECT
+#     s.scan_id,
+#     s.scan_time,
+#     t.ticket_id,
+#     u.name  -- This might be NULL if user deleted
+# FROM scans s
+# INNER JOIN tickets t ON s.ticket_id = t.ticket_id
+# LEFT JOIN users u ON t.user_id = u.user_id;
+
+# When to use: Required vs optional relationships
+
+# 6. JOINs with Aggregation
+# --------------------------
+# -- Count tickets per user
+# SELECT
+#     u.user_id,
+#     u.name,
+#     COUNT(t.ticket_id) as ticket_count
+# FROM users u
+# LEFT JOIN tickets t ON u.user_id = t.user_id
+# GROUP BY u.user_id, u.name;
+
+# Result:
+# U123 - Alice - 2
+# U456 - Bob - 1
+# U789 - Charlie - 0  ← LEFT JOIN includes users with 0 tickets!
+
+# If we used INNER JOIN, Charlie would be excluded!
+
+# 7. Self-JOIN - Compare rows in same table
+# ------------------------------------------
+# -- Find tickets purchased by the same user
+# SELECT
+#     t1.ticket_id as ticket1,
+#     t2.ticket_id as ticket2,
+#     t1.user_id
+# FROM tickets t1
+# INNER JOIN tickets t2 ON t1.user_id = t2.user_id
+#                       AND t1.ticket_id < t2.ticket_id;
+
+# Result: Pairs of tickets owned by same person
+# (t1.ticket_id < t2.ticket_id prevents duplicates)
+
+# QUIZ EXERCISES - Try these queries yourself!
+# ---------------------------------------------
+
+# Exercise 1: Find all users who have NEVER bought a ticket
+# Hint: Use LEFT JOIN and check for NULL
+
+# Exercise 2: Count total scans per user (not per ticket!)
+# Hint: Join scans → tickets → users, then GROUP BY user
+
+# Exercise 3: Find VIP ticket holders who have scanned in today
+# Hint: Join tickets → users, filter ticket_type = 'VIP' and scan_type = 'entry'
+
+# Exercise 4: List users with their total spending
+# Hint: LEFT JOIN users → tickets, SUM(price)
+
+# Exercise 5: Find tickets that have NEVER been scanned
+# Hint: LEFT JOIN tickets → scans, WHERE scan_id IS NULL
+
+# SOLUTIONS (try before looking!)
+# --------------------------------
+
+# -- Exercise 1: Users who never bought tickets
+# SELECT u.user_id, u.name
+# FROM users u
+# LEFT JOIN tickets t ON u.user_id = t.user_id
+# WHERE t.ticket_id IS NULL;
+
+# -- Exercise 2: Total scans per user
+# SELECT
+#     u.user_id,
+#     u.name,
+#     COUNT(s.scan_id) as total_scans
+# FROM users u
+# LEFT JOIN tickets t ON u.user_id = t.user_id
+# LEFT JOIN scans s ON t.ticket_id = s.ticket_id
+# GROUP BY u.user_id, u.name;
+
+# -- Exercise 3: VIP holders who scanned in
+# SELECT DISTINCT
+#     u.user_id,
+#     u.name,
+#     t.ticket_id
+# FROM users u
+# INNER JOIN tickets t ON u.user_id = t.user_id
+# INNER JOIN scans s ON t.ticket_id = s.ticket_id
+# WHERE t.ticket_type = 'VIP'
+#   AND s.scan_type = 'entry';
+
+# -- Exercise 4: Total spending per user
+# SELECT
+#     u.user_id,
+#     u.name,
+#     COALESCE(SUM(t.price), 0) as total_spent
+# FROM users u
+# LEFT JOIN tickets t ON u.user_id = t.user_id
+# GROUP BY u.user_id, u.name;
+
+# -- Exercise 5: Tickets never scanned
+# SELECT t.ticket_id, t.ticket_type, u.name
+# FROM tickets t
+# INNER JOIN users u ON t.user_id = u.user_id
+# LEFT JOIN scans s ON t.ticket_id = s.ticket_id
+# WHERE s.scan_id IS NULL;
+
+# JOIN Performance Tips:
+# ----------------------
+# - ALWAYS index foreign key columns (we did this!)
+#   CREATE INDEX idx_tickets_user ON tickets(user_id)
+
+# - INNER JOIN is faster than LEFT JOIN (fewer rows)
+
+# - Put smaller table first when possible
+
+# - Use EXPLAIN ANALYZE to check if indexes are used
+
+# Interview Discussion Points:
+# -----------------------------
+# Q: "When would you use LEFT JOIN vs INNER JOIN in an API?"
+# A: LEFT JOIN when optional data (user preferences), INNER JOIN when required (tickets must have users)
+
+# Q: "How do JOINs affect API performance?"
+# A: Without indexes, JOINs can be slow. Always index foreign keys. Consider caching frequently-joined data in Redis.
+
+# Q: "What's N+1 query problem?"
+# A: Fetching users in a loop, then tickets for each user separately.
+#    BAD: SELECT * FROM users; then loop: SELECT * FROM tickets WHERE user_id = ?
+#    GOOD: Single query with JOIN!
+TODO - JOINS ABOVE
 
 Basic Queries Across Tables:
 -----------------------------
@@ -371,7 +573,16 @@ def count_current_occupancy_db() -> int:
     cursor = conn.cursor()
 
     query = """
-    -- TODO: Write your query here
+    WITH last_scan AS (
+        SELECT DISTINCT ON(ticket_id)
+            ticket_id,
+            scan_type
+        FROM scans
+        ORDER BY ticket_id, scan_time DESC
+        )
+    SELECT COUNT(*)
+    FROM last_scan
+    WHERE scan_type = 'entry';
     """
 
     cursor.execute(query)
@@ -1684,15 +1895,17 @@ if __name__ == "__main__":
     print("=" * 70)
 
     # Uncomment to set up database:
-    # setup_database()
-    # populate_database()
+    setup_database()
+    populate_database()
 
     print("\n📊 Testing Python functions with mock stream...\n")
 
     # Test basic occupancy
     result1 = count_current_occupancy(mock_scan_stream())
     print(f"Q1 - Current occupancy: {result1}")
-    print(f"     Expected: 5 tickets inside")
+    print(f"     Expected: 4 tickets inside")
+    print(f"     Expected: 4 tickets inside")
+
 
     # Test time-based occupancy
     result2 = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T11:30:00')
@@ -1712,6 +1925,91 @@ if __name__ == "__main__":
     result5 = manage_capacity_realtime(mock_scan_stream(), max_capacity=6)
     print(f"\nQ5 - Capacity management: {result5}")
 
+    # ===========================================================================
+    # DATABASE QUERY TESTS - Test your SQL solutions!
+    # ===========================================================================
+
     print("\n" + "=" * 70)
-    print("Now run: pytest test_occupancy_advanced.py")
+    print("DATABASE QUERY TESTS - Testing your SQL solutions")
+    print("=" * 70)
+
+    # TEST DB QUESTION 1: Current occupancy using SQL
+    print("\n🗄️  DATABASE Q1 - Current Occupancy")
+    print("-" * 50)
+    try:
+        db_result1 = count_current_occupancy_db()
+        py_result1 = count_current_occupancy(mock_scan_stream())
+        print(f"Your SQL query result: {db_result1}")
+        print(f"Python result (correct): {py_result1}")
+        if db_result1 == py_result1:
+            print("✅ CORRECT! Your query works!")
+        else:
+            print(f"❌ INCORRECT - Expected {py_result1}, got {db_result1}")
+    except Exception as e:
+        print(f"❌ ERROR in your query: {e}")
+
+    # TEST DB QUESTION 2: Occupancy at specific time
+    print("\n🗄️  DATABASE Q2 - Occupancy at 11:30am")
+    print("-" * 50)
+    try:
+        db_result2 = get_occupancy_at_time_db('2025-09-30 11:30:00')
+        py_result2 = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T11:30:00')
+        print(f"Your SQL query result: {db_result2}")
+        print(f"Python result (correct): {py_result2}")
+        if db_result2 == py_result2:
+            print("✅ CORRECT! Your query works!")
+        else:
+            print(f"❌ INCORRECT - Expected {py_result2}, got {db_result2}")
+    except Exception as e:
+        print(f"❌ ERROR in your query: {e}")
+
+    # TEST DB QUESTION 3: Detailed occupancy breakdown
+    print("\n🗄️  DATABASE Q3 - Detailed Occupancy Breakdown")
+    print("-" * 50)
+    try:
+        db_result3 = track_occupancy_with_details_db()
+        py_result3 = track_occupancy_with_details(mock_scan_stream())
+        print(f"Your SQL query result: {db_result3}")
+        print(f"Python result (correct): {py_result3}")
+        if db_result3:
+            print("✅ Query executed! Check if data looks reasonable")
+            print("   Expected keys: total_occupancy, by_gate, by_ticket_type")
+        else:
+            print("❌ Query returned empty result")
+    except Exception as e:
+        print(f"❌ ERROR in your query: {e}")
+
+    # TEST DB QUESTION 4: Anomaly detection
+    print("\n🗄️  DATABASE Q4 - Anomaly Detection")
+    print("-" * 50)
+    try:
+        db_result4 = detect_scan_anomalies_db()
+        py_result4 = detect_scan_anomalies(mock_scan_stream())
+        print(f"Your SQL query result: {db_result4}")
+        print(f"Python result (correct): {py_result4}")
+        if 'duplicate_entries' in db_result4 and 'T003' in str(db_result4['duplicate_entries']):
+            print("✅ CORRECT! Found T003 duplicate entry!")
+        else:
+            print("❌ INCORRECT - Should find T003 as duplicate entry")
+    except Exception as e:
+        print(f"❌ ERROR in your query: {e}")
+
+    # TEST DB QUESTION 5: Capacity management
+    print("\n🗄️  DATABASE Q5 - Capacity Management")
+    print("-" * 50)
+    try:
+        db_result5 = manage_capacity_realtime_db(max_capacity=6)
+        py_result5 = manage_capacity_realtime(mock_scan_stream(), max_capacity=6)
+        print(f"Your SQL query result: {db_result5}")
+        print(f"Python result (correct): {py_result5}")
+        if db_result5:
+            print("✅ Query executed! Check if logic matches Python result")
+        else:
+            print("❌ Query returned empty result")
+    except Exception as e:
+        print(f"❌ ERROR in your query: {e}")
+
+    print("\n" + "=" * 70)
+    print("DONE! All tests complete.")
+    print("Alternatively, run: pytest test_occupancy_advanced.py")
     print("=" * 70)

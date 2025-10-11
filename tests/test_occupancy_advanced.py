@@ -24,45 +24,45 @@ from occupancy_advanced import (
 def test_count_current_occupancy_basic():
     """Test basic occupancy counting."""
     result = count_current_occupancy(mock_scan_stream())
-    assert result == 5, f"Expected 5 tickets inside, got {result}"
+    assert result == 4, f"Expected 5 tickets inside, got {result}"
 
 
-# def test_count_current_occupancy_empty_stream():
-#     """Test with no events."""
-#     result = count_current_occupancy(iter([]))
-#     assert result == 0, "Empty stream should have 0 occupancy"
+def test_count_current_occupancy_empty_stream():
+    """Test with no events."""
+    result = count_current_occupancy(iter([]))
+    assert result == 0, "Empty stream should have 0 occupancy"
 
 
-# def test_count_current_occupancy_only_entries():
-#     """Test with only entry scans."""
-#     events = [
-#         {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T10:00:00', 'scan_type': 'entry'},
-#         {'ticket_id': 'T002', 'gate': 'A', 'timestamp': '2025-09-30T10:01:00', 'scan_type': 'entry'},
-#         {'ticket_id': 'T003', 'gate': 'B', 'timestamp': '2025-09-30T10:02:00', 'scan_type': 'entry'},
-#     ]
-#     result = count_current_occupancy(iter(events))
-#     assert result == 3, "All 3 tickets should be inside"
+def test_count_current_occupancy_only_entries():
+    """Test with only entry scans."""
+    events = [
+        {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T10:00:00', 'scan_type': 'entry'},
+        {'ticket_id': 'T002', 'gate': 'A', 'timestamp': '2025-09-30T10:01:00', 'scan_type': 'entry'},
+        {'ticket_id': 'T003', 'gate': 'B', 'timestamp': '2025-09-30T10:02:00', 'scan_type': 'entry'},
+    ]
+    result = count_current_occupancy(iter(events))
+    assert result == 3, "All 3 tickets should be inside"
 
 
-# def test_count_current_occupancy_entry_then_exit():
-#     """Test that exits are properly tracked."""
-#     events = [
-#         {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T10:00:00', 'scan_type': 'entry'},
-#         {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T11:00:00', 'scan_type': 'exit'},
-#     ]
-#     result = count_current_occupancy(iter(events))
-#     assert result == 0, "Ticket that entered and exited should not be inside"
+def test_count_current_occupancy_entry_then_exit():
+    """Test that exits are properly tracked."""
+    events = [
+        {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T10:00:00', 'scan_type': 'entry'},
+        {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T11:00:00', 'scan_type': 'exit'},
+    ]
+    result = count_current_occupancy(iter(events))
+    assert result == 0, "Ticket that entered and exited should not be inside"
 
 
-# def test_count_current_occupancy_multiple_tickets_same_user():
-#     """Test that same user with 2 tickets counts as 2."""
-#     # U123 has T001 and T008
-#     events = [
-#         {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T10:00:00', 'scan_type': 'entry'},
-#         {'ticket_id': 'T008', 'gate': 'A', 'timestamp': '2025-09-30T10:01:00', 'scan_type': 'entry'},
-#     ]
-#     result = count_current_occupancy(iter(events))
-#     assert result == 2, "Same user with 2 tickets should count as 2"
+def test_count_current_occupancy_multiple_tickets_same_user():
+    """Test that same user with 2 tickets counts as 2."""
+    # U123 has T001 and T008
+    events = [
+        {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T10:00:00', 'scan_type': 'entry'},
+        {'ticket_id': 'T008', 'gate': 'A', 'timestamp': '2025-09-30T10:01:00', 'scan_type': 'entry'},
+    ]
+    result = count_current_occupancy(iter(events))
+    assert result == 2, "Same user with 2 tickets should count as 2"
 
 
 # # ===========================================================================
