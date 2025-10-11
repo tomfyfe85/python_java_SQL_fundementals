@@ -65,46 +65,46 @@ def test_count_current_occupancy_multiple_tickets_same_user():
     assert result == 2, "Same user with 2 tickets should count as 2"
 
 
-# # ===========================================================================
-# # TEST QUESTION 2: Time-based Occupancy
-# # ===========================================================================
+# ===========================================================================
+# TEST QUESTION 2: Time-based Occupancy
+# ===========================================================================
 
-# def test_occupancy_at_time_before_any_scans():
-#     """Test occupancy before any events."""
-#     result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T09:00:00')
-#     assert result == 0, "No one inside before first scan"
-
-
-# def test_occupancy_at_time_after_first_entry():
-#     """Test occupancy right after first entry."""
-#     result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T10:00:01')
-#     assert result == 1, "Should be 1 ticket inside"
+def test_occupancy_at_time_before_any_scans():
+    """Test occupancy before any events."""
+    result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T09:00:00')
+    assert result == 0, "No one inside before first scan"
 
 
-# def test_occupancy_at_time_mid_event():
-#     """Test occupancy at 11:30am."""
-#     result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T11:30:00')
-#     assert result == 6, "Should be 6 tickets inside at 11:30am"
+def test_occupancy_at_time_after_first_entry():
+    """Test occupancy right after first entry."""
+    result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T10:00:01')
+    assert result == 1, "Should be 1 ticket inside"
 
 
-# def test_occupancy_at_time_after_all_events():
-#     """Test occupancy after all events."""
-#     result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T23:59:59')
-#     assert result == 5, "Should be 5 tickets inside at end of day"
+def test_occupancy_at_time_mid_event():
+    """Test occupancy at 11:30am."""
+    result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T11:30:00')
+    assert result == 6, "Should be 6 tickets inside at 11:30am"
 
 
-# def test_occupancy_at_time_exact_scan_time():
-#     """Test occupancy at exact time of a scan."""
-#     # T001 enters at exactly 10:00:00
-#     result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T10:00:00')
-#     assert result == 1, "Should include scan at exact timestamp"
+def test_occupancy_at_time_after_all_events():
+    """Test occupancy after all events."""
+    result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T23:59:59')
+    assert result == 4, "Should be 4 tickets inside at end of day (T005, T006, T007, T008)"
 
 
-# def test_occupancy_at_time_between_entry_and_exit():
-#     """Test occupancy between entry and exit of same ticket."""
-#     # T001 enters at 10:00, exits at 11:00
-#     result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T10:30:00')
-#     assert result >= 1, "T001 should still be inside at 10:30"
+def test_occupancy_at_time_exact_scan_time():
+    """Test occupancy at exact time of a scan."""
+    # T001 enters at exactly 10:00:00
+    result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T10:00:00')
+    assert result == 1, "Should include scan at exact timestamp"
+
+
+def test_occupancy_at_time_between_entry_and_exit():
+    """Test occupancy between entry and exit of same ticket."""
+    # T001 enters at 10:00, exits at 11:00
+    result = get_occupancy_at_time(mock_scan_stream(), '2025-09-30T10:30:00')
+    assert result >= 1, "T001 should still be inside at 10:30"
 
 
 # # ===========================================================================
