@@ -780,11 +780,43 @@ def track_occupancy_with_details(stream) -> Dict:
     - defaultdict for counting
     - Regular dict for lookups
     """
-    # TODO: Implement
     # Hint 1: Build a ticket_id -> ticket_type lookup dict first
     # Hint 2: Track which gate each ticket last used
     # Hint 3: Use defaultdict(int) for counting
-    pass
+    
+    ticket_type_usage = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
+    
+    total_occupancy = set()
+    by_gate =  defaultdict(int)   
+    by_ticket_type = defaultdict(int)
+    total_entries = 0
+    total_exits = 0
+
+    for event in stream:
+        ticket_id = event['ticket_id']
+        gate = event['gate']
+        scan_type = event['scan_type']
+
+        if scan_type == 'entry' and ticket_id not in total_occupancy:
+                total_occupancy.add(ticket_id)
+                total_entries += 1
+                by_gate[gate] +=1
+                by_ticket_type[ticket_type_usage[ticket_id]] += 1
+
+        elif scan_type == 'exit':
+            total_occupancy.discard(ticket_id)
+            total_exits +=1
+            by_gate[gate] -=1
+            by_ticket_type[ticket_type_usage[ticket_id]] -= 1
+
+
+    return {
+            'total_occupancy': len(total_occupancy),
+            'by_gate': dict(by_gate),
+            'by_ticket_type': dict(by_ticket_type),
+            'total_entries': total_entries,
+            'total_exits': total_exits
+        }
 
 
 """

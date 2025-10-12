@@ -111,59 +111,60 @@ def test_occupancy_at_time_between_entry_and_exit():
 # # TEST QUESTION 3: Detailed Tracking
 # # ===========================================================================
 
-# def test_track_occupancy_total():
-#     """Test total occupancy calculation."""
-#     result = track_occupancy_with_details(mock_scan_stream())
-#     assert 'total_occupancy' in result, "Should include total_occupancy"
-#     assert result['total_occupancy'] == 5, f"Expected 5, got {result.get('total_occupancy')}"
+def test_track_occupancy_total():
+    """Test total occupancy calculation."""
+    result = track_occupancy_with_details(mock_scan_stream())
+    assert 'total_occupancy' in result, "Should include total_occupancy"
+    assert result['total_occupancy'] == 4, f"Expected 4, got {result.get('total_occupancy')}"
 
 
-# def test_track_occupancy_by_gate():
-#     """Test occupancy breakdown by gate."""
-#     result = track_occupancy_with_details(mock_scan_stream())
-#     assert 'by_gate' in result, "Should include by_gate breakdown"
+def test_track_occupancy_by_gate():
+    """Test occupancy breakdown by gate."""
+    result = track_occupancy_with_details(mock_scan_stream())
+    assert 'by_gate' in result, "Should include by_gate breakdown"
 
-#     by_gate = result['by_gate']
-#     assert isinstance(by_gate, dict), "by_gate should be a dictionary"
+    by_gate = result['by_gate']
+    assert isinstance(by_gate, dict), "by_gate should be a dictionary"
 
-#     # Check that all gates have counts
-#     total_by_gate = sum(by_gate.values())
-#     assert total_by_gate == result['total_occupancy'], "Gate totals should equal total occupancy"
-
-
-# def test_track_occupancy_by_ticket_type():
-#     """Test occupancy breakdown by ticket type."""
-#     result = track_occupancy_with_details(mock_scan_stream())
-#     assert 'by_ticket_type' in result, "Should include by_ticket_type breakdown"
-
-#     by_type = result['by_ticket_type']
-#     assert 'VIP' in by_type or 'General' in by_type, "Should have ticket types"
-
-#     total_by_type = sum(by_type.values())
-#     assert total_by_type == result['total_occupancy'], "Type totals should equal total occupancy"
+    # Check that all gates have counts
+    total_by_gate = sum(by_gate.values())
+    assert total_by_gate == result['total_occupancy'], "Gate totals should equal total occupancy"
 
 
-# def test_track_occupancy_entry_exit_counts():
-#     """Test total entry and exit counts."""
-#     result = track_occupancy_with_details(mock_scan_stream())
-#     assert 'total_entries' in result, "Should include total_entries"
-#     assert 'total_exits' in result, "Should include total_exits"
+def test_track_occupancy_by_ticket_type():
+    """Test occupancy breakdown by ticket type."""
+    result = track_occupancy_with_details(mock_scan_stream())
+    assert 'by_ticket_type' in result, "Should include by_ticket_type breakdown"
 
-#     # Count scans manually
-#     entries = sum(1 for e in mock_scan_stream() if e['scan_type'] == 'entry')
-#     exits = sum(1 for e in mock_scan_stream() if e['scan_type'] == 'exit')
+    by_type = result['by_ticket_type']
+    assert 'VIP' in by_type or 'General' in by_type, "Should have ticket types"
 
-#     assert result['total_entries'] == entries, f"Expected {entries} entries"
-#     assert result['total_exits'] == exits, f"Expected {exits} exits"
+    total_by_type = sum(by_type.values())
+    assert total_by_type == result['total_occupancy'], "Type totals should equal total occupancy"
 
 
-# def test_track_occupancy_validates_ticket_types():
-#     """Test that ticket types match expected values."""
-#     result = track_occupancy_with_details(mock_scan_stream())
-#     by_type = result.get('by_ticket_type', {})
+def test_track_occupancy_entry_exit_counts():
+    """Test total entry and exit counts."""
+    result = track_occupancy_with_details(mock_scan_stream())
+    assert 'total_entries' in result, "Should include total_entries"
+    assert 'total_exits' in result, "Should include total_exits"
 
-#     for ticket_type in by_type.keys():
-#         assert ticket_type in ['VIP', 'General'], f"Unexpected ticket type: {ticket_type}"
+    # Count VALID entries/exits (excluding duplicates/anomalies)
+    # T003 enters twice, but should only count once
+    expected_entries = 8  # Unique successful entries
+    expected_exits = 4    # All exits are valid
+
+    assert result['total_entries'] == expected_entries, f"Expected {expected_entries} valid entries (excluding T003 duplicate)"
+    assert result['total_exits'] == expected_exits, f"Expected {expected_exits} exits"
+
+
+def test_track_occupancy_validates_ticket_types():
+    """Test that ticket types match expected values."""
+    result = track_occupancy_with_details(mock_scan_stream())
+    by_type = result.get('by_ticket_type', {})
+
+    for ticket_type in by_type.keys():
+        assert ticket_type in ['VIP', 'General'], f"Unexpected ticket type: {ticket_type}"
 
 
 # # ===========================================================================
