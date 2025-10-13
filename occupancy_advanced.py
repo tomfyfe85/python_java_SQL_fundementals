@@ -3,10 +3,9 @@
 # Practice for CrowdComms Junior API Developer Role
 # Focus: Streaming data, database design, real-world event scenarios
 from datetime import datetime
-from collections import defaultdict, deque, Counter
+from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import Dict, List, Set, Optional, Tuple
-import heapq
+from typing import Dict, List, Set
 import psycopg2
 
 
@@ -60,6 +59,8 @@ def mock_scan_stream():
         {'ticket_id': 'T004', 'gate': 'C', 'timestamp': '2025-09-30T10:03:00', 'scan_type': 'entry'},
         {'ticket_id': 'T005', 'gate': 'B', 'timestamp': '2025-09-30T10:05:00', 'scan_type': 'entry'},
         {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T11:00:00', 'scan_type': 'exit'},
+        {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T11:05:00', 'scan_type': 'entry'},
+
         {'ticket_id': 'T006', 'gate': 'A', 'timestamp': '2025-09-30T11:05:00', 'scan_type': 'entry'},
         {'ticket_id': 'T002', 'gate': 'A', 'timestamp': '2025-09-30T11:10:00', 'scan_type': 'exit'},
         {'ticket_id': 'T003', 'gate': 'B', 'timestamp': '2025-09-30T11:15:00', 'scan_type': 'entry'},  # DUPLICATE!
@@ -1095,11 +1096,77 @@ def detect_scan_anomalies(stream) -> Dict[str, Set[str]]:
     - Dict mapping ticket_id -> last_exit_time for rapid detection
     - datetime parsing for time calculations
     """
-    # TODO: Implement
     # Hint: Use datetime.fromisoformat() to parse timestamps
     # Hint: Store last exit time per ticket
     # Hint: Check if (entry_time - last_exit_time) < 5 minutes
-    pass
+    
+    # 1)
+    # current_occupancy set() and duplicate set()
+    # Use If,elif,else
+    # if scan_type is entry ticket_id is in current_occupancy then add to duplicate
+    # elif scan_type is entry then add to current_occupancy() - sets wont allow duplication,
+    # no need too specify ticket
+    # else  ie scan_type is exit then we can discard the ticket_id from the current_occupancy list
+
+    # 2)
+    #  'exit_without_entry' set()
+    #  elif - scan_type is 'exit' and ticket_id is not in current_occupancy
+    #  add ticket_id to 'exit_without_entry'
+    # this should go aftetr the first elif
+
+    # 3
+    # 'rapid_re_entry': set()
+    # 're-entry_under_5_mins' dict()
+    # I need to track if a ticket_id has exite and I need to track the exit times.
+    # add dict to else 
+    # I need to convert the time stamps from iso strings to datetime objects   
+    # I need to map the converted strings and thier ticket_ids to hash for comparison later
+    # I need to look up how to comrpare a datatime object to an arbitary amount of time - use timedelta
+    
+    # In the loop - add to the first elif (nested if?)- it's not fraduelent, and they should be let in, but we want to 
+    # ...keep track of them
+    # I need to check IF the incoming ticket_ids have previosly exited
+    # if ticket_id is in the hash, get the exit time and find the difference between that and the reentry time
+    #ill use dedefault dict- from collection import defaultdict 
+    # If they have then I'll compare the exit time to the entry time - find the difference
+    # if it's less than 5 mins, add to the rapid_reentry set
+
+
+    current_occupancy = set()
+    duplicates = set()
+    exit_without_entry = set()
+    re_entry_under_5_mins_tracker = dict()
+    rapid_re_entry = set()
+
+    for scan in stream:
+        ticket_id = scan['ticket_id']
+        scan_type = scan['scan_type']
+        scan_time = datetime.fromisoformat(scan['timestamp'])
+
+
+        if scan_type == 'entry' and ticket_id in current_occupancy:
+            duplicates.add(ticket_id)
+
+        elif scan_type == 'entry':
+            current_occupancy.add(ticket_id)
+            if ticket_id in re_entry_under_5_mins_tracker:
+                if (scan_time - re_entry_under_5_mins_tracker[ticket_id]) <= timedelta(minutes= 5):
+                    rapid_re_entry.add(ticket_id)
+
+        elif scan_type == 'exit' and ticket_id not in current_occupancy:
+            exit_without_entry.add(ticket_id)
+
+        else:
+            current_occupancy.discard(ticket_id)
+            re_entry_under_5_mins_tracker[ticket_id] = scan_time
+
+
+    return {
+        'duplicate_entries': duplicates,
+        'exit_without_entry': exit_without_entry,
+        'rapid_re_entry': rapid_re_entry
+    }
+
 
 
 """
@@ -1437,18 +1504,68 @@ def manage_capacity_realtime(stream, max_capacity: int = 6,
     - Track multiple states simultaneously
     - Handle conditional logic based on ticket type
 
-    Data structures:
-    - defaultdict for counting
-    - Set for tracking who's inside
-    - List for rejected tickets
-    - Dict for ticket lookups
     """
-    # TODO: Implement
-    # This is the hardest question - combines everything!
-    # Hint: Build ticket_id -> ticket_type lookup first
-    # Hint: Check capacity BEFORE allowing entry
-    # Hint: VIP tickets bypass capacity check
-    pass
+    
+    # 1 get final occupancy - int
+    #  max occupancy is 6
+    #  current_occupents = set() - handles dupes - use len for current_occupents
+    #  either standard or vip can enter up to max occupancy
+    #  when max occupancy is reached only vips can enter
+
+    # need to create a lookup to see which ticket ID: tickt_type
+    # use a dictionary comprehension
+    # tickt_id_ticket_type
+
+    # use a for loop
+    # if scan_type == "entry"
+    # nested ?
+    # if len(current_occupents) < 6
+    # current_occupents.add(ticket_id)
+    # if len(current_occupents) > 6 and ticket_type == VIP
+    # current_occupents.add(ticket_id)
+    # else:
+    # current_occupents.discard(ticket_id)
+
+    # return len(current_occupents)
+
+    #2 times at capacity
+    # make a counter to track every time  len(current_occupents) > 6
+    # make a boolen to control addition to the counter
+    # over_max = "False" 
+    
+    # if len(current_occupents) >= max and not over_max:
+    # counter +=1 
+    # over_max = True
+    # if len(current_occupents) <= max:
+    # over_max = False
+
+
+    current_occupents = set()
+    ticket_id_ticket_type = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
+    over_max = False
+    times_at_capacity = 0
+
+    for scan in stream:
+        scan_type = scan['scan_type']
+        ticket_id = scan['ticket_id']
+        ticket_type = ticket_id_ticket_type[ticket_id]
+
+
+        if scan_type == 'entry':
+            if len(current_occupents) < max_capacity:
+                current_occupents.add(ticket_id)
+            elif ticket_type == 'VIP' and len(current_occupents) > max_capacity:
+                current_occupents.add(ticket_id)
+                
+            if len(current_occupents) >= max_capacity and not over_max:
+                times_at_capacity +=1
+                over_max = True
+            elif len(current_occupents) <= max_capacity:
+                    over_max = False
+        else:
+            current_occupents.discard(ticket_id)
+
+    return {'final_occupancy': len(current_occupents), 'times_at_capacity': times_at_capacity}
 
 
 """
