@@ -82,7 +82,7 @@ def setup_database():
     Create the 3-table schema for event occupancy tracking.
     Run this ONCE to set up your database.
     """
-    conn = psycopg2.connect("dbname=event_venue user=tomfyfe")
+    conn = psycopg2.connect("dbname=occupancy_db_learning2 user=tomfyfe")
     cursor = conn.cursor()
 
     # Drop existing tables (fresh start)
@@ -142,7 +142,7 @@ def populate_database():
     Populate all 3 tables with mock data.
     Run this AFTER setup_database().
     """
-    conn = psycopg2.connect("dbname=event_venue user=tomfyfe")
+    conn = psycopg2.connect("dbname=occupancy_db_learning2 user=tomfyfe")
     cursor = conn.cursor()
 
     # Clear existing data
