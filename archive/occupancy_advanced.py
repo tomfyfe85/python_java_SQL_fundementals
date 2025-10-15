@@ -2,10 +2,10 @@
 # ======================================================
 # Practice for CrowdComms Junior API Developer Role
 # Focus: Streaming data, database design, real-world event scenarios
-from datetime import datetime
-from collections import defaultdict
-from datetime import datetime, timedelta
+from collections import defaultdict, Counter
 from typing import Dict, List, Set
+from datetime import datetime
+import json
 import psycopg2
 
 
@@ -45,7 +45,12 @@ def get_mock_tickets():
 
 def mock_scan_stream():
     """
-    Generator yielding scan events (entry/exit).
+    Generator yielding scan events as JSON strings (realistic API format).
+
+    This simulates real-world scenarios where:
+    - Gate scanners send JSON via HTTP POST to your API
+    - Message queues (RabbitMQ, SQS) deliver JSON messages
+    - WebSocket connections stream JSON events
 
     Key scenarios in this data:
     - T003 enters twice without exiting (duplicate entry - anomaly!)
@@ -53,24 +58,22 @@ def mock_scan_stream():
     - Mixed VIP and General tickets
     """
     events = [
-        {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T10:00:00', 'scan_type': 'entry'},
-        {'ticket_id': 'T002', 'gate': 'A', 'timestamp': '2025-09-30T10:01:00', 'scan_type': 'entry'},
-        {'ticket_id': 'T003', 'gate': 'B', 'timestamp': '2025-09-30T10:02:00', 'scan_type': 'entry'},
-        {'ticket_id': 'T004', 'gate': 'C', 'timestamp': '2025-09-30T10:03:00', 'scan_type': 'entry'},
-        {'ticket_id': 'T005', 'gate': 'B', 'timestamp': '2025-09-30T10:05:00', 'scan_type': 'entry'},
-        {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T11:00:00', 'scan_type': 'exit'},
-        {'ticket_id': 'T001', 'gate': 'A', 'timestamp': '2025-09-30T11:05:00', 'scan_type': 'entry'},
-
-        {'ticket_id': 'T006', 'gate': 'A', 'timestamp': '2025-09-30T11:05:00', 'scan_type': 'entry'},
-        {'ticket_id': 'T002', 'gate': 'A', 'timestamp': '2025-09-30T11:10:00', 'scan_type': 'exit'},
-        {'ticket_id': 'T003', 'gate': 'B', 'timestamp': '2025-09-30T11:15:00', 'scan_type': 'entry'},  # DUPLICATE!
-        {'ticket_id': 'T007', 'gate': 'C', 'timestamp': '2025-09-30T11:20:00', 'scan_type': 'entry'},
-        {'ticket_id': 'T008', 'gate': 'A', 'timestamp': '2025-09-30T11:25:00', 'scan_type': 'entry'},  # U123's 2nd
-        {'ticket_id': 'T003', 'gate': 'B', 'timestamp': '2025-09-30T12:00:00', 'scan_type': 'exit'},
-        {'ticket_id': 'T004', 'gate': 'C', 'timestamp': '2025-09-30T12:05:00', 'scan_type': 'exit'},
+        '{"ticket_id": "T001", "gate": "A", "timestamp": "2025-09-30T10:00:00", "scan_type": "entry"}',
+        '{"ticket_id": "T002", "gate": "A", "timestamp": "2025-09-30T10:01:00", "scan_type": "entry"}',
+        '{"ticket_id": "T003", "gate": "B", "timestamp": "2025-09-30T10:02:00", "scan_type": "entry"}',
+        '{"ticket_id": "T004", "gate": "C", "timestamp": "2025-09-30T10:03:00", "scan_type": "entry"}',
+        '{"ticket_id": "T005", "gate": "B", "timestamp": "2025-09-30T10:05:00", "scan_type": "entry"}',
+        '{"ticket_id": "T001", "gate": "A", "timestamp": "2025-09-30T11:00:00", "scan_type": "exit"}',
+        '{"ticket_id": "T006", "gate": "A", "timestamp": "2025-09-30T11:05:00", "scan_type": "entry"}',
+        '{"ticket_id": "T002", "gate": "A", "timestamp": "2025-09-30T11:10:00", "scan_type": "exit"}',
+        '{"ticket_id": "T003", "gate": "B", "timestamp": "2025-09-30T11:15:00", "scan_type": "entry"}',  # DUPLICATE!
+        '{"ticket_id": "T007", "gate": "C", "timestamp": "2025-09-30T11:20:00", "scan_type": "entry"}',
+        '{"ticket_id": "T008", "gate": "A", "timestamp": "2025-09-30T11:25:00", "scan_type": "entry"}',  # U123's 2nd
+        '{"ticket_id": "T003", "gate": "B", "timestamp": "2025-09-30T12:00:00", "scan_type": "exit"}',
+        '{"ticket_id": "T004", "gate": "C", "timestamp": "2025-09-30T12:05:00", "scan_type": "exit"}',
     ]
-    for event in events:
-        yield event
+    for event_json in events:
+        yield event_json
 
 
 # ===========================================================================
@@ -165,7 +168,8 @@ def populate_database():
         """, (ticket['ticket_id'], ticket['user_id'], ticket['ticket_type'], ticket['price']))
 
     # Insert scans
-    for scan in mock_scan_stream():
+    for event_json in mock_scan_stream():
+        scan = json.loads(event_json)  # Parse JSON string
         cursor.execute("""
             INSERT INTO scans (ticket_id, gate, scan_type, scan_time)
             VALUES (%s, %s, %s, %s)
@@ -264,17 +268,21 @@ def count_current_occupancy(stream) -> int:
 
     Expected: 4 tickets inside at the end
     """
-    current_tickets_inside = set()
-    
-    for event in stream:
-        scan_type = event['scan_type']
-        ticket_id = event['ticket_id']
-        
+
+    current_occupants = set()
+
+    for scan_stream in stream:
+        scan = json.loads(scan_stream)
+        scan_type = scan['scan_type']
+        ticket_id = scan['ticket_id']
+
         if scan_type == 'entry':
-            current_tickets_inside.add(ticket_id)
+            current_occupants.add(ticket_id)
         else:
-            current_tickets_inside.discard(ticket_id)
-    return len(current_tickets_inside)
+            current_occupants.discard(ticket_id)
+
+    return len(current_occupants)
+
 
 """
 📚 DATABASE LEARNING - QUESTION 1
@@ -399,6 +407,7 @@ def count_current_occupancy_db() -> int:
     return result[0] if result else 0
 
 
+
 """
 🐍 PYTHON LEARNING - QUESTION 2: Working with Timestamps
 =========================================================
@@ -507,27 +516,43 @@ def get_occupancy_at_time(stream, target_time: str) -> int:
 
     Key insight: Only process events BEFORE target_time!
     """
-    # import date from datetime
-    # convert strings to iso format, inc the target_time arg
-    # store valid events in a set, remove with exit scans
-    # if scan time > tagert_time - return length of the set
+    # - import datetime  -
+    # - import json - 
+    # - convert target time to dt object
+    # -create a set
     
+    # itereate through the stream
+    # i shoudl be conveted from JSON to a python dict json.loads(i)
+    # convert iso strings to datetime for comparison
     
-    target = datetime.fromisoformat(target_time)
+    # if scan_time < target - add to set
+    # else break - break not return as if we returned here and the target time is never reached
+    # the If would never be satified
+    # return len(set)
+
+    # 
+
+    # add ticket id to set if the the time
+    
     tickets_inside = set()
+    target_datetime = datetime.fromisoformat(target_time)
 
     for scan in stream:
-        timestamp = datetime.fromisoformat(scan['timestamp'])
-        ticket_id = scan['ticket_id']
-        scan_type = scan['scan_type']
+        event_scan = json.loads(scan)
+        scan_time = datetime.fromisoformat(event_scan['timestamp'])
 
-        if target >= timestamp:
-            if scan_type == 'entry':
-                tickets_inside.add(ticket_id)
-            else:
-                tickets_inside.discard(ticket_id)
+        if scan_time >= target_datetime:
+            break
+
+        ticket_id = event_scan['ticket_id']
+        scan_type = event_scan['scan_type']
+
+        if scan_type == 'entry':
+            tickets_inside.add(ticket_id)
         else:
-             break
+            tickets_inside.discard(ticket_id)
+
+
     return len(tickets_inside)
 
 """
@@ -785,40 +810,19 @@ def track_occupancy_with_details(stream) -> Dict:
     # Hint 2: Track which gate each ticket last used
     # Hint 3: Use defaultdict(int) for counting
     
-    ticket_type_usage = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
+    # ticket_type_usage = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
     
-    total_occupancy = set()
-    by_gate =  defaultdict(int)   
-    by_ticket_type = defaultdict(int)
-    total_entries = 0
-    total_exits = 0
-
-    for event in stream:
-        ticket_id = event['ticket_id']
-        gate = event['gate']
-        scan_type = event['scan_type']
-
-        if scan_type == 'entry' and ticket_id not in total_occupancy:
-                total_occupancy.add(ticket_id)
-                total_entries += 1
-                by_gate[gate] +=1
-                by_ticket_type[ticket_type_usage[ticket_id]] += 1
-
-        elif scan_type == 'exit':
-            total_occupancy.discard(ticket_id)
-            total_exits +=1
-            by_gate[gate] -=1
-            by_ticket_type[ticket_type_usage[ticket_id]] -= 1
-
-
-    return {
-            'total_occupancy': len(total_occupancy),
-            'by_gate': dict(by_gate),
-            'by_ticket_type': dict(by_ticket_type),
-            'total_entries': total_entries,
-            'total_exits': total_exits
-        }
-
+    # total_occupancy = set()
+    # by_gate =  defaultdict(int)   
+    # by_ticket_type = defaultdict(int)
+    # total_entries = 0
+    # total_exits = 0
+    
+    lookup = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
+    
+    tik_type = Counter(lookup.values())
+        
+    print(dict(tik_type))
 
 """
 📚 DATABASE LEARNING - QUESTION 3
@@ -1132,40 +1136,40 @@ def detect_scan_anomalies(stream) -> Dict[str, Set[str]]:
     # if it's less than 5 mins, add to the rapid_reentry set
 
 
-    current_occupancy = set()
-    duplicates = set()
-    exit_without_entry = set()
-    re_entry_under_5_mins_tracker = dict()
-    rapid_re_entry = set()
+    # current_occupancy = set()
+    # duplicates = set()
+    # exit_without_entry = set()
+    # re_entry_under_5_mins_tracker = dict()
+    # rapid_re_entry = set()
 
-    for scan in stream:
-        ticket_id = scan['ticket_id']
-        scan_type = scan['scan_type']
-        scan_time = datetime.fromisoformat(scan['timestamp'])
-
-
-        if scan_type == 'entry' and ticket_id in current_occupancy:
-            duplicates.add(ticket_id)
-
-        elif scan_type == 'entry':
-            current_occupancy.add(ticket_id)
-            if ticket_id in re_entry_under_5_mins_tracker:
-                if (scan_time - re_entry_under_5_mins_tracker[ticket_id]) <= timedelta(minutes= 5):
-                    rapid_re_entry.add(ticket_id)
-
-        elif scan_type == 'exit' and ticket_id not in current_occupancy:
-            exit_without_entry.add(ticket_id)
-
-        else:
-            current_occupancy.discard(ticket_id)
-            re_entry_under_5_mins_tracker[ticket_id] = scan_time
+    # for scan in stream:
+    #     ticket_id = scan['ticket_id']
+    #     scan_type = scan['scan_type']
+    #     scan_time = datetime.fromisoformat(scan['timestamp'])
 
 
-    return {
-        'duplicate_entries': duplicates,
-        'exit_without_entry': exit_without_entry,
-        'rapid_re_entry': rapid_re_entry
-    }
+    #     if scan_type == 'entry' and ticket_id in current_occupancy:
+    #         duplicates.add(ticket_id)
+
+    #     elif scan_type == 'entry':
+    #         current_occupancy.add(ticket_id)
+    #         if ticket_id in re_entry_under_5_mins_tracker:
+    #             if (scan_time - re_entry_under_5_mins_tracker[ticket_id]) <= timedelta(minutes= 5):
+    #                 rapid_re_entry.add(ticket_id)
+
+    #     elif scan_type == 'exit' and ticket_id not in current_occupancy:
+    #         exit_without_entry.add(ticket_id)
+
+    #     else:
+    #         current_occupancy.discard(ticket_id)
+    #         re_entry_under_5_mins_tracker[ticket_id] = scan_time
+
+
+    # return {
+    #     'duplicate_entries': duplicates,
+    #     'exit_without_entry': exit_without_entry,
+    #     'rapid_re_entry': rapid_re_entry
+    # }
 
 
 
@@ -1540,32 +1544,32 @@ def manage_capacity_realtime(stream, max_capacity: int = 6,
     # over_max = False
 
 
-    current_occupents = set()
-    ticket_id_ticket_type = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
-    over_max = False
-    times_at_capacity = 0
+    # current_occupents = set()
+    # ticket_id_ticket_type = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
+    # over_max = False
+    # times_at_capacity = 0
 
-    for scan in stream:
-        scan_type = scan['scan_type']
-        ticket_id = scan['ticket_id']
-        ticket_type = ticket_id_ticket_type[ticket_id]
+    # for scan in stream:
+    #     scan_type = scan['scan_type']
+    #     ticket_id = scan['ticket_id']
+    #     ticket_type = ticket_id_ticket_type[ticket_id]
 
 
-        if scan_type == 'entry':
-            if len(current_occupents) < max_capacity:
-                current_occupents.add(ticket_id)
-            elif ticket_type == 'VIP' and len(current_occupents) > max_capacity:
-                current_occupents.add(ticket_id)
+    #     if scan_type == 'entry':
+    #         if len(current_occupents) < max_capacity:
+    #             current_occupents.add(ticket_id)
+    #         elif ticket_type == 'VIP' and len(current_occupents) > max_capacity:
+    #             current_occupents.add(ticket_id)
                 
-            if len(current_occupents) >= max_capacity and not over_max:
-                times_at_capacity +=1
-                over_max = True
-            elif len(current_occupents) <= max_capacity:
-                    over_max = False
-        else:
-            current_occupents.discard(ticket_id)
+    #         if len(current_occupents) >= max_capacity and not over_max:
+    #             times_at_capacity +=1
+    #             over_max = True
+    #         elif len(current_occupents) <= max_capacity:
+    #                 over_max = False
+    #     else:
+    #         current_occupents.discard(ticket_id)
 
-    return {'final_occupancy': len(current_occupents), 'times_at_capacity': times_at_capacity}
+    # return {'final_occupancy': len(current_occupents), 'times_at_capacity': times_at_capacity}
 
 
 """
