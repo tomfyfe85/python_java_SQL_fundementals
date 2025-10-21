@@ -113,20 +113,58 @@ def count_current_occupancy(stream) -> int:
     - Why .discard() over .remove()? Safe for exits without entry
     - How to handle duplicates? Set ignores them automatically
     """
-    current_occupants = set()
+#  first ill handle any imports i need, in this case just the JSON lib.
 
-    for event_json in stream:
-        event = json.loads(event_json)
-        scan_type = event['scan_type']
-        ticket_id = event['ticket_id']
+# Ill set up any datastructures or variables next
+# so a set in this case and ill name is appropriatly - current_occupancy seems right
 
+# I'll need to run checks on each scan.
+# For this ill use a for loop
+
+# first each scan will need to be converted to a python dict from the JSON string - googles this ....
+# https://docs.python.org - searches JSON
+
+# I can use json.loads(scan) and save as a variable
+# I should keep a record of the ticket_ids. 
+
+# I can use an if statement in the for loop
+
+# if scan_type == 'entry'
+#    .add it to the set
+# else 
+#  .discard from set
+
+# I'll use use disgard here as itwont though an error if the id isnt in the set.
+
+# if a dupe comes, the ticket_id wont be added.
+
+# and if the scan type isn't entry' it must 'exit' so then I can remove the ticket_id from the set
+
+# The function is expecting to return an integer.
+# so I'll use len() on the set to get the final number of tickets currently in the event
+
+#use set to store ticket_ids
+#loop through checking each scan
+#convert each scan from json to a dict
+#in the loop - set up variable names
+#use if statement - 
+# if scan_type == 'entry' - set.add(ticket_id)
+# else set.discard(ticket_id)
+#return len(set)
+
+    current_occupancy = set()
+    
+    for json_scan in stream:
+        scan = json.loads(json_scan)
+        ticket_id = scan['ticket_id']
+        scan_type = scan['scan_type']
+        
         if scan_type == 'entry':
-            current_occupants.add(ticket_id)
+            current_occupancy.add(ticket_id)
         else:
-            current_occupants.discard(ticket_id)
-
-    return len(current_occupants)
-
+            current_occupancy.discard(ticket_id)
+        
+    return len(current_occupancy)
 
 # ===========================================================================
 # QUESTION 2: Time-Based Occupancy (MEDIUM)
@@ -170,26 +208,25 @@ def get_occupancy_at_time(stream, target_time: str) -> int:
     - What if target_time is after all events? Return final occupancy
     - What if no scan at exact target time? Use >= to stop at first scan after
     """
-    tickets_inside = set()
-    target_datetime = datetime.fromisoformat(target_time)
+    current_occupancy = set()
+    
+    target_time_dt = datetime.fromisoformat(target_time)
 
-    for event_json in stream:
-        event = json.loads(event_json)
-        scan_time = datetime.fromisoformat(event['timestamp'])
-
-        # Stop processing events after target time
-        if scan_time >= target_datetime:
+    for json_scan in stream:
+        scan = json.loads(json_scan)
+        ticket_id = scan['ticket_id']
+        scan_type = scan['scan_type']
+        timestamp = datetime.fromisoformat(scan['timestamp'])
+        
+        if timestamp > target_time_dt:
             break
 
-        ticket_id = event['ticket_id']
-        scan_type = event['scan_type']
-
         if scan_type == 'entry':
-            tickets_inside.add(ticket_id)
+            current_occupancy.add(ticket_id)
         else:
-            tickets_inside.discard(ticket_id)
+            current_occupancy.discard(ticket_id)
 
-    return len(tickets_inside)
+    return len(current_occupancy)
 
 
 # ===========================================================================
@@ -225,7 +262,7 @@ def track_occupancy_with_details(stream) -> Dict:
 
     Returns:
         {
-            'total_occupancy': 5,
+            'total_occupancy': 4,
             'by_gate': {'A': 2, 'B': 2, 'C': 1},
             'by_ticket_type': {'VIP': 2, 'General': 3},
             'total_entries': 8,
@@ -236,45 +273,42 @@ def track_occupancy_with_details(stream) -> Dict:
     - by_gate and by_ticket_type need BOTH increment AND decrement
     - total_entries only counts valid entries (check if already inside first)
     """
-    # Build ticket type lookup O(1) access
-    ticket_type_lookup = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
-
-    # Initialize tracking structures
     total_occupancy = set()
-    by_gate = defaultdict(int)
-    by_ticket_type = defaultdict(int)
     total_entries = 0
     total_exits = 0
+    gate_count = defaultdict(int)
+    total_ticket_type = defaultdict(int)
+    
+    id_to_ticket_type = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
+    
+    for json_scan in stream:
+        scan = json.loads(json_scan)
+        ticket_id = scan['ticket_id']
+        scan_type = scan['scan_type']
+        gate = scan['gate']
 
-    for event_json in stream:
-        event = json.loads(event_json)
-        ticket_id = event['ticket_id']
-        gate = event['gate']
-        scan_type = event['scan_type']
-        ticket_type = ticket_type_lookup[ticket_id]
-
-        if scan_type == 'entry' and ticket_id not in total_occupancy:
-            # Valid entry (not a duplicate)
+       
+        
+        if scan_type == "entry" and ticket_id not in total_occupancy:
+            gate_count[gate] += 1
             total_occupancy.add(ticket_id)
             total_entries += 1
-            by_gate[gate] += 1
-            by_ticket_type[ticket_type] += 1
+            total_ticket_type[id_to_ticket_type[ticket_id]] += 1
+            
+        elif scan_type == 'exit':
 
-        elif scan_type == 'exit' and ticket_id in total_occupancy:
-            # Valid exit
             total_occupancy.discard(ticket_id)
             total_exits += 1
-            by_gate[gate] -= 1  # Must decrement!
-            by_ticket_type[ticket_type] -= 1  # Must decrement!
-
+            total_ticket_type[id_to_ticket_type[ticket_id]] -= 1
+            
     return {
         'total_occupancy': len(total_occupancy),
-        'by_gate': dict(by_gate),
-        'by_ticket_type': dict(by_ticket_type),
+        'by_gate': dict(gate_count),
+        'by_ticket_type': dict(total_ticket_type),
         'total_entries': total_entries,
-        'total_exits': total_exits
+        'total_exits': total_exits,
+        
     }
-
 
 # ===========================================================================
 # QUESTION 4: Anomaly Detection (HARD)
@@ -318,44 +352,8 @@ def detect_scan_anomalies(stream) -> Dict[str, Set[str]]:
     - Dict lookup: O(1)
     - Overall: O(n) where n = number of scans
     """
-    current_occupancy = set()
-    duplicates = set()
-    exit_without_entry = set()
-    last_exit_time = {}
-    rapid_reentry = set()
-
-    for event_json in stream:
-        event = json.loads(event_json)
-        ticket_id = event['ticket_id']
-        scan_type = event['scan_type']
-        scan_time = datetime.fromisoformat(event['timestamp'])
-
-        if scan_type == 'entry' and ticket_id in current_occupancy:
-            # Anomaly: Duplicate entry
-            duplicates.add(ticket_id)
-
-        elif scan_type == 'entry':
-            # Check for rapid re-entry BEFORE adding
-            if ticket_id in last_exit_time:
-                time_since_exit = scan_time - last_exit_time[ticket_id]
-                if time_since_exit <= timedelta(minutes=5):
-                    rapid_reentry.add(ticket_id)
-
-            current_occupancy.add(ticket_id)
-
-        elif scan_type == 'exit' and ticket_id not in current_occupancy:
-            # Anomaly: Exit without entry
-            exit_without_entry.add(ticket_id)
-
-        else:  # Valid exit
-            current_occupancy.discard(ticket_id)
-            last_exit_time[ticket_id] = scan_time
-
-    return {
-        'duplicate_entries': duplicates,
-        'exit_without_entry': exit_without_entry,
-        'rapid_reentry': rapid_reentry
-    }
+    # TODO: Implement this function
+    pass
 
 
 # ===========================================================================
@@ -408,60 +406,8 @@ def manage_capacity_realtime(stream, max_capacity: int = 6) -> Dict:
     - What if capacity changes mid-event? (Could use time-based capacity)
     - How to notify rejected users? (Return rejection in API response)
     """
-    ticket_type_lookup = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
-
-    actual_occupancy = set()
-    theoretical_occupancy = set()
-    rejected_entries = []
-    times_at_capacity = 0
-    vip_override_count = 0
-
-    for event_json in stream:
-        event = json.loads(event_json)
-        ticket_id = event['ticket_id']
-        scan_type = event['scan_type']
-
-        if scan_type == 'entry':
-            # Always track theoretical (no limits)
-            if ticket_id not in theoretical_occupancy:
-                theoretical_occupancy.add(ticket_id)
-
-            # Actual occupancy (with capacity rules)
-            ticket_type = ticket_type_lookup[ticket_id]
-            current_count = len(actual_occupancy)
-
-            # Skip duplicates
-            if ticket_id in actual_occupancy:
-                continue
-
-            # Below capacity - anyone can enter
-            if current_count < max_capacity:
-                actual_occupancy.add(ticket_id)
-
-            # At/above capacity - VIP only
-            elif ticket_type == 'VIP':
-                actual_occupancy.add(ticket_id)
-                vip_override_count += 1
-                if current_count == max_capacity:
-                    times_at_capacity += 1
-
-            # At capacity, not VIP - reject
-            else:
-                rejected_entries.append(ticket_id)
-                if current_count == max_capacity:
-                    times_at_capacity += 1
-
-        else:  # Exit
-            actual_occupancy.discard(ticket_id)
-            theoretical_occupancy.discard(ticket_id)
-
-    return {
-        'final_occupancy': len(actual_occupancy),
-        'times_at_capacity': times_at_capacity,
-        'rejected_entries': rejected_entries,
-        'would_be_occupancy': len(theoretical_occupancy),
-        'vip_override_count': vip_override_count
-    }
+    # TODO: Implement this function
+    pass
 
 
 # ===========================================================================
@@ -495,30 +441,8 @@ def analyze_scan_patterns(stream) -> Dict:
             'entries_by_type': Counter({'General': 5, 'VIP': 3})
         }
     """
-    ticket_type_lookup = {t['ticket_id']: t['ticket_type'] for t in get_mock_tickets()}
-
-    scans_per_gate = Counter()
-    entries_by_type = Counter()
-
-    for event_json in stream:
-        event = json.loads(event_json)
-        gate = event['gate']
-        scan_type = event['scan_type']
-        ticket_id = event['ticket_id']
-
-        # Count every scan at each gate
-        scans_per_gate[gate] += 1
-
-        # Count entries by ticket type
-        if scan_type == 'entry':
-            ticket_type = ticket_type_lookup[ticket_id]
-            entries_by_type[ticket_type] += 1
-
-    return {
-        'scans_per_gate': scans_per_gate,
-        'busiest_gates': scans_per_gate.most_common(2),  # Top 2
-        'entries_by_type': entries_by_type
-    }
+    # TODO: Implement this function
+    pass
 
 
 # ===========================================================================
@@ -560,29 +484,8 @@ def track_recent_activity(stream, window_size: int = 100) -> Dict:
             'recent_entry_count': 45
         }
     """
-    recent_scans = deque(maxlen=window_size)  # Auto-removes oldest
-    current_occupancy = set()
-
-    for event_json in stream:
-        event = json.loads(event_json)
-        recent_scans.append(event)  # Auto-removes oldest if at maxlen
-
-        ticket_id = event['ticket_id']
-        scan_type = event['scan_type']
-
-        if scan_type == 'entry':
-            current_occupancy.add(ticket_id)
-        else:
-            current_occupancy.discard(ticket_id)
-
-    # Analyze recent scans
-    recent_entries = sum(1 for scan in recent_scans if scan['scan_type'] == 'entry')
-
-    return {
-        'recent_scans': list(recent_scans),  # Convert to list for JSON
-        'current_occupancy': len(current_occupancy),
-        'recent_entry_count': recent_entries
-    }
+    # TODO: Implement this function
+    pass
 
 
 # ===========================================================================
@@ -610,30 +513,30 @@ if __name__ == "__main__":
     for key, value in result3.items():
         print(f"     {key}: {value}")
 
-    # Q4: Anomaly Detection
-    result4 = detect_scan_anomalies(mock_scan_stream())
-    print(f"\nQ4 - Anomalies detected:")
-    for anomaly_type, tickets in result4.items():
-        print(f"     {anomaly_type}: {tickets}")
+    # # Q4: Anomaly Detection
+    # result4 = detect_scan_anomalies(mock_scan_stream())
+    # print(f"\nQ4 - Anomalies detected:")
+    # for anomaly_type, tickets in result4.items():
+    #     print(f"     {anomaly_type}: {tickets}")
 
-    # Q5: Capacity Management
-    result5 = manage_capacity_realtime(mock_scan_stream(), max_capacity=6)
-    print(f"\nQ5 - Capacity management:")
-    for key, value in result5.items():
-        print(f"     {key}: {value}")
+    # # Q5: Capacity Management
+    # result5 = manage_capacity_realtime(mock_scan_stream(), max_capacity=6)
+    # print(f"\nQ5 - Capacity management:")
+    # for key, value in result5.items():
+    #     print(f"     {key}: {value}")
 
-    # Bonus: Counter
-    result6 = analyze_scan_patterns(mock_scan_stream())
-    print(f"\nBONUS - Scan patterns (Counter):")
-    print(f"     Busiest gates: {result6['busiest_gates']}")
-    print(f"     Entries by type: {result6['entries_by_type']}")
+    # # Bonus: Counter
+    # result6 = analyze_scan_patterns(mock_scan_stream())
+    # print(f"\nBONUS - Scan patterns (Counter):")
+    # print(f"     Busiest gates: {result6['busiest_gates']}")
+    # print(f"     Entries by type: {result6['entries_by_type']}")
 
-    # Bonus: Deque
-    result7 = track_recent_activity(mock_scan_stream(), window_size=5)
-    print(f"\nBONUS - Recent activity (deque):")
-    print(f"     Last 5 scans: {[s['ticket_id'] for s in result7['recent_scans']]}")
-    print(f"     Current occupancy: {result7['current_occupancy']}")
+    # # Bonus: Deque
+    # result7 = track_recent_activity(mock_scan_stream(), window_size=5)
+    # print(f"\nBONUS - Recent activity (deque):")
+    # print(f"     Last 5 scans: {[s['ticket_id'] for s in result7['recent_scans']]}")
+    # print(f"     Current occupancy: {result7['current_occupancy']}")
 
-    print("\n" + "=" * 70)
-    print("ALL TESTS COMPLETE!")
-    print("=" * 70)
+    # print("\n" + "=" * 70)
+    # print("ALL TESTS COMPLETE!")
+    # print("=" * 70)

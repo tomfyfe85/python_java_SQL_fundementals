@@ -176,7 +176,7 @@ SELECT COUNT(DISTINCT ticket_id) FROM scans
 # Real-world use: "When was last activity?" for system health monitoring
 
 QUESTION_2_4 = """
-SELECT MAX(scan_time) FROM scans
+SELECT MAX (scan_time) FROM scans;
 """
 
 # ===========================================================================
@@ -225,10 +225,13 @@ IMPORTANT: Any column in SELECT (except aggregates) must be in GROUP BY!
 # Real-world use: "Which entrance is busiest?" for staff allocation
 
 QUESTION_3_1 = """
-SELECT gate, COUNT (*)
+SELECT gate, COUNT(*)
 FROM scans
 GROUP BY gate
+ORDER BY gate
+;
 """
+
 
 # QUESTION 3.2: Count entries vs exits
 # =====================================
@@ -266,9 +269,10 @@ GROUP BY scan_type
 # Real-world use: "Detect suspicious activity" - tickets scanned too many times
 
 QUESTION_3_3 = """
-SELECT ticket_id, COUNT (*)
+SELECT ticket_id, COUNT(*)
 FROM scans
 GROUP BY ticket_id
+;
 """
 
 # ===========================================================================
@@ -315,9 +319,9 @@ RESULT: Only scans that have matching tickets (orphaned records excluded).
 # Real-world use: "What type of tickets are being scanned?"
 
 QUESTION_4_1 = """
-    SELECT t.ticket_id, t.ticket_type, s.scan_type
-    FROM tickets t
-    INNER JOIN scans s ON t.ticket_id = s.ticket_id
+SELECT t.ticket_id, s.scan_type, t.ticket_type
+FROM scans s
+INNER JOIN tickets t ON s.ticket_id = t.ticket_id;
 """
 
 # QUESTION 4.2: Count scans by ticket type
@@ -353,11 +357,10 @@ GROUP BY t.ticket_type
 # Real-world use: "Track VIP arrivals"
 
 QUESTION_4_3 = """
-SELECT t.ticket_id,  t.ticket_type, s.scan_type
-FROM tickets t
-INNER JOIN scans s ON s.ticket_id = t.ticket_id
-WHERE s.scan_type = 'entry' AND t.ticket_type = 'VIP'
-
+SELECT t.ticket_id, s.scan_type, t.ticket_type
+FROM scans s
+INNER JOIN tickets t ON t.ticket_id = s.ticket_id
+WHERE s.scan_type = 'entry' and t.ticket_type = 'VIP';
 """
 
 # ===========================================================================
@@ -403,9 +406,8 @@ CHECK FOR NULLS: WHERE s.scan_type IS NULL finds tickets never scanned.
 # Real-world use: "Show all tickets, include scan activity if it happened"
 
 QUESTION_5_1 = """
-SELECT t.ticket_id, t.ticket_type, s.scan_type, s.scan_time
-FROM tickets t
-LEFT JOIN scans s ON t.ticket_id = s.ticket_id
+SELECT * FROM tickets t
+LEFT JOIN scans s ON t.ticket_id = s.ticket_id;
 """
 
 # QUESTION 5.2: Find unused tickets
@@ -447,11 +449,7 @@ WHERE s.scan_type is NULL
 # Real-world use: "Ticket usage report"
 
 QUESTION_5_3 = """
-SELECT t.ticket_id, t.ticket_type, COUNT(s.scan_id) AS scan_count
-FROM tickets t
-LEFT JOIN scans s ON t.ticket_id = s.ticket_id
-GROUP BY  t.ticket_id, t.ticket_type
-ORDER BY t.ticket_id
+
 
 """
 
@@ -881,3 +879,6 @@ if __name__ == "__main__":
 
     # Uncomment to test all questions at once:
     test_all()
+
+
+
