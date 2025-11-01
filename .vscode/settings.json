@@ -22,7 +22,8 @@
         ]
     },
     "workbench.colorCustomizations": {
-        "gitDecoration.modifiedResourceForeground": "#F9E79F"
+        "gitDecoration.modifiedResourceForeground": "#F9E79F",
+        "gitDecoration.untrackedResourceForeground": "#F9E79F"
     },
     "pylint.args": [
         "--disable=W0105"

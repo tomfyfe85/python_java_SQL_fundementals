@@ -19,45 +19,43 @@ def celsius_to_fahrenheit(celsius: float | int ) -> float:
         
     Returns:
         Temperature in Fahrenheit
-        
     Raises:
+    
         TypeError: If celsius is not a number
         ValueError: If celsius is below absolute zero
     """
     if not isinstance(celsius, (float, int))  :
         raise TypeError("input must be a  float")
-
-    fahrenheit = (celsius * 9/5) + 32
-
-    if fahrenheit > ABSOLUTE_ZERO_FAHRENHEIT:
+    if celsius >= ABSOLUTE_ZERO_CELSIUS:
+        fahrenheit = (celsius * 9/5) + 32
         return float(fahrenheit)
     else:
         raise ValueError("Result is below absolute zero")
 
 
 
-def fahrenheit_to_celsius(fahrenheit: float | int) -> float:
-    """Convert Fahrenheit to Celsius.temo
+# def fahrenheit_to_celsius(fahrenheit: float | int) -> float:
+#     """Convert Fahrenheit to Celsius
     
-    Args:
-        fahrenheit: Temperature in Fahrenheit
+#     Args:
+#         fahrenheit: Temperature in Fahrenheit
         
-    Returns:
-        Temperature in Celsius
+#     Returns:
+#         Temperature in Celsius
         
-    Raises:
-        TypeError: If fahrenheit is not a number
-        ValueError: If fahrenheit is below absolute zero
-    """
-    if not isinstance(fahrenheit, (float, int))  :
-        raise TypeError("input must be a  float")
+#     Raises:
+#         TypeError: If fahrenheit is not a number
+#         ValueError: If fahrenheit is below absolute zero
+#     """
+#     if not isinstance(fahrenheit, (float, int))  :
+#         raise TypeError("input must be a  float")
 
-    celsius = (celsius * 9/5) + 32
+#     celsius = (celsius * 9/5) + 32
 
-    if fahrenheit > ABSOLUTE_ZERO_FAHRENHEIT:
-        return float(fahrenheit)
-    else:
-        raise ValueError("Result is below absolute zero"
+#     if fahrenheit > ABSOLUTE_ZERO_FAHRENHEIT:
+#         return float(fahrenheit)
+#     else:
+#         raise ValueError("Result is below absolute zero"
 
 
 # Manual testing
@@ -65,17 +63,19 @@ if __name__ == "__main__":
     # Test valid conversions
     print(celsius_to_fahrenheit(0))      # Should be 32.0
     print(celsius_to_fahrenheit(100))    # Should be 212.0
-    print(celsius_to_fahrenheit(32))     # Should be 0.0
+    print(celsius_to_fahrenheit(32))     # Should be 89.6
+    print(celsius_to_fahrenheit(-273.15))  # Should work (return -459.67)
+
 
     # print(fahrenheit_to_celsius(12))     # Should be 0.0
+
+    print("Test edge cases")
+    try:
+        celsius_to_fahrenheit("hot")
+    except TypeError as e:
+        print(f"Caught TypeError: {e}")
     
-    # Test edge cases
-    # try:
-    #     celsius_to_fahrenheit("hot")
-    # except TypeError as e:
-    #     print(f"Caught TypeError: {e}")
-    
-    # try:
-    #     celsius_to_fahrenheit(-300)
-    # except ValueError as e:
-    #     print(f"Caught ValueError: {e}")
+    try:
+        celsius_to_fahrenheit(-300)
+    except ValueError as e:
+        print(f"Caught ValueError: {e}")
