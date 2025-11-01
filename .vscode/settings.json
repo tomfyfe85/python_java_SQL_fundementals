@@ -21,6 +21,9 @@
             }
         ]
     },
+    "workbench.colorCustomizations": {
+        "gitDecoration.modifiedResourceForeground": "#F9E79F"
+    },
     "pylint.args": [
         "--disable=W0105"
     ]
