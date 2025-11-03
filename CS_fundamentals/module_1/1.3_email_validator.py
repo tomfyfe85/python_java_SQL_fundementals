@@ -35,8 +35,40 @@ YOUR TASK:
 # YOUR CODE GOES BELOW
 # ==========================================
 
-# TODO: Implement is_valid_email() function here
+def is_valid_email(email: str) -> bool:
+    """Validate emails to these rules:
+        1. Must contain exactly one '@' symbol
+        2. Must have at least one character before '@'
+        3. Must have at least one character after '@'
+        4. The part after '@' must contain at least one '.'
+        5. Must have at least one character after the last '.'
 
+    Args:
+        email: An email in string format.
+
+    Returns:
+        boolean - if the email doesn't fit the rules, return False
+    """
+    
+
+    if not isinstance(email, str):
+        raise TypeError("Email should be a string")
+
+    if email.count('@') != 1:
+        return False
+    
+    at_index = email.index("@")
+    email_from_at_sign = email[at_index:]
+
+
+    if email[0] == '@' or email[-1] == '@':
+        return False
+    elif email[-1] == '.':
+        return False
+    elif '.' not in email_from_at_sign:
+        return False
+    else:
+        return True
 
 # ==========================================
 # TEST CASES
