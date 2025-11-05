@@ -49,7 +49,7 @@ def is_valid_email(email: str) -> bool:
     Returns:
         boolean - if the email doesn't fit the rules, return False
     """
-    
+
 
     if not isinstance(email, str):
         raise TypeError("Email should be a string")
@@ -59,7 +59,6 @@ def is_valid_email(email: str) -> bool:
     
     at_index = email.index("@")
     email_from_at_sign = email[at_index:]
-
 
     if email[0] == '@' or email[-1] == '@':
         return False
