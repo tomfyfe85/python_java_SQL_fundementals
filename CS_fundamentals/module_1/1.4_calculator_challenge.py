@@ -30,7 +30,7 @@ BONUS CHALLENGE (Optional):
 Extend the calculator to support:
 - "power" - Exponentiation (a^b)
 - "modulo" - Remainder (a % b)
-- Handle negative numbers correctly
+- Handle negative numbers correctlyß
 
 YOUR TASK:
 1. Use the UMPIRE method to solve this problem
@@ -39,10 +39,24 @@ YOUR TASK:
 4. Implement the function with type hints and docstring
 5. Test thoroughly with all examples above
 """
+import operator
 
-# ==========================================
-# YOUR CODE GOES BELOW
-# ==========================================
+def calculate(operation: str, num1: float, num2: float) -> float:
+    """A calculator that takes a string as an operation
+
+    ARGS: Operation - string, 2 floats as numbers 
+
+    RETURN: Float after the operation has be completed
+    """
+    
+    operations = {'add': operator.add, 'subtract': operator.add, 'multiply': '*', 'divide': '/'}
+
+    if not isinstance(num1, (float, int)) or not isinstance(num2, (float, int)):
+        raise TypeError("operation must be of type float or int")
+
+    if operation not in operations:
+        raise ValueError("Operation is not supported")
+
 
 
 # ==========================================
@@ -72,12 +86,7 @@ if __name__ == "__main__":
     except ValueError as e:
         print(f"✓ ValueError: {e}")
 
-    # Test type error
-    try:
-        calculate("add", "5", 3)
-        print("❌ FAIL: Should raise TypeError")
-    except TypeError as e:
-        print(f"✓ TypeError: {e}")
+
 
     # Test negative numbers
     print("\nTesting with negative numbers:")

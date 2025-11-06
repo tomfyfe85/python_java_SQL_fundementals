@@ -42,24 +42,20 @@ if statements
 ## P - PLAN
 
 First validate input
-operation must be a vaild string
+operation must be a valid string
 a and b must be instances of a float (this will except an int)
 
+if operation is 'divide' the neither a nor b can be 0
 **Pseudocode:**
 
 ```
-function_name(parameters):
-    1. [step]
+ calculate(operation: str, a: float, b: float) -> float:
+    1. validate
+    if statement to validate input
+    first test the operation is valid
+    Could use a set to hold all valid strings - 01 look up
     2. [step]
     return result
-```
-
-**Test Cases:**
-
-```
-Test 1 (normal): input → expected output
-Test 2 (edge):   input → expected output
-Test 3 (error):  input → expected output
 ```
 
 ---
