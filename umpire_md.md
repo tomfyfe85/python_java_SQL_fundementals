@@ -34,6 +34,7 @@ Extend the calculator to support:
 **Similar Problems:**
 simpler fiz buzz
 **Data Structures:**
+hashmap
 **Patterns/Techniques:**
 if statements
 
@@ -52,8 +53,11 @@ if operation is 'divide' the neither a nor b can be 0
  calculate(operation: str, a: float, b: float) -> float:
     1. validate
     if statement to validate input
-    first test the operation is valid
-    Could use a set to hold all valid strings - 01 look up
+
+    use a hash map of operations to their code equivalent
+    eg {'add': + }
+    if operation is in the hash
+    return a hash[operation] b
     2. [step]
     return result
 ```

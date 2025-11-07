@@ -44,12 +44,13 @@ import operator
 def calculate(operation: str, num1: float, num2: float) -> float:
     """A calculator that takes a string as an operation
 
-    ARGS: Operation - string, 2 floats as numbers 
+    ARGS: Operation - string, num1 and num2 are numbers - int or float 
 
     RETURN: Float after the operation has be completed
     """
-    
-    operations = {'add': operator.add, 'subtract': operator.add, 'multiply': '*', 'divide': '/'}
+
+    operations = {'add': operator.add, 'subtract': operator.sub, 'multiply': operator.mul, 
+                'divide': operator.truediv, 'power': operator.pow, 'modulo': operator.mod }
 
     if not isinstance(num1, (float, int)) or not isinstance(num2, (float, int)):
         raise TypeError("operation must be of type float or int")
@@ -57,8 +58,11 @@ def calculate(operation: str, num1: float, num2: float) -> float:
     if operation not in operations:
         raise ValueError("Operation is not supported")
 
-
-
+    if operation == 'divide' and num2 == 0:
+        raise ZeroDivisionError("Anything divided by zero is not a valid operation")
+    
+    result = operations[operation](num1, num2)
+    return float(result)
 # ==========================================
 # TEST CASES
 # ==========================================
@@ -81,7 +85,7 @@ if __name__ == "__main__":
 
     # Test unsupported operation
     try:
-        calculate("power", 2, 3)
+        calculate("square", 2, 3)
         print("❌ FAIL: Should raise ValueError")
     except ValueError as e:
         print(f"✓ ValueError: {e}")
@@ -95,5 +99,9 @@ if __name__ == "__main__":
 
     print("\n=== BONUS CHALLENGE ===")
     print("Uncomment these tests if you implement the bonus features:")
-    # print(f"2 ^ 3 = {calculate('power', 2, 3)}")      # Should be 8.0
-    # print(f"10 % 3 = {calculate('modulo', 10, 3)}")   # Should be 1.0
+    print(f"2 ^ 3 = {calculate('power', 2, 3)}")      # Should be 8.0
+    print(f"10 % 3 = {calculate('modulo', 10, 3)}")   # Should be 1.0
+
+
+    print(f"5 * 0 = {calculate('multiply', 5, 0)}")       # Should be 3.0
+    print(f"0 ÷ 3 = {calculate('divide', 0, 3)}")     # Should be 5.0
