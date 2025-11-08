@@ -1,29 +1,31 @@
 # UMPIRE Problem-Solving Worksheet
 
-**Problem Name:** **\*\***\_\_\_\_**\*\*** **Date:** **\*\***\_\_\_\_**\*\***
-
 ---
 
 ## U - UNDERSTAND
 
-create a calculator app
+Create a bank account class
+User should be able to add money, withdraw money, and see tbe balance as a
+string representation
+
 **Inputs:**
-string from 'supported operations', 2 floats
-**Outputs:** returns a float
+in the constructor:
+account no -str, account holder name - str, balance -float
+deposit and withdraw but take an amount - float
+**Outputs:**
+total amount in string form via getbalance().
+total amount is a float
 **Constraints:**
-inputs must be in given as the specified type
-**Edge Cases:**
-Dividing by zero should raise ZeroDivisionError
 
-- Raise TypeError if inputs are not numbers
-- Raise ValueError if operation is not supported
-
-BONUS CHALLENGE (Optional):
-Extend the calculator to support:
-
-- "power" - Exponentiation (a^b)
-- "modulo" - Remainder (a % b)
-- Handle negative numbers - Python does this
+- Account number cannot be empty -ValueError
+- Owner name cannot be empty - ValueError: For invalid values
+- Initial balance cannot be negative ValueError: For invalid values
+- Deposit amount must be positive - ValueError
+- Withdrawal amount must be positive - ValueError
+- Cannot withdraw more than current balance -ValueError
+  **Edge Cases:**
+  Exceptions to Raise:
+- TypeError: For wrong types
 
 ---
 
@@ -32,34 +34,54 @@ Extend the calculator to support:
 [What similar problems have you solved? What data structures and techniques apply?]
 
 **Similar Problems:**
-simpler fiz buzz
-**Data Structures:**
-hashmap
+**Data Structures:** None
 **Patterns/Techniques:**
-if statements
+add or subtract from
 
 ---
 
 ## P - PLAN
 
-First validate input
-operation must be a valid string
-a and b must be instances of a float (this will except an int)
+[Write pseudocode and create test cases BEFORE coding]
 
-if operation is 'divide' the neither a nor b can be 0
 **Pseudocode:**
 
 ```
- calculate(operation: str, a: float, b: float) -> float:
-    1. validate
-    if statement to validate input
+ BankAccount(account_no: str, owner_name:str, initial_balance: float) -> float:
+    constructor
+    arguments as instance variables
+    but create a new total_balance variable which is initially set to initial_balance
+    - Account number cannot be empty -ValueError
+    - Owner name cannot be empty - ValueError: For invalid values
+    - Initial balance cannot be negative ValueError: For invalid values
+    put data validation in the constructor
 
-    use a hash map of operations to their code equivalent
-    eg {'add': + }
-    if operation is in the hash
-    return a hash[operation] b
-    2. [step]
-    return result
+    deposit(amount)
+    amount should be a float - value error
+    - Deposit amount must be positive - ValueError
+    returns nothing
+
+    withdraw(amount)
+    amount should be a float - value error
+    returns nothing
+
+    - Withdrawal amount must be positive - ValueError
+    - Cannot withdraw more than current balance -ValueError
+        if amount > total_balance
+            -ValueError
+
+    - get_balance(): Return current balance
+      returns total_balance() as a float
+
+    __str__ returns total balance as a string representation
+```
+
+**Test Cases:**
+
+```
+Test 1 (normal): input → expected output
+Test 2 (edge):   input → expected output
+Test 3 (error):  input → expected output
 ```
 
 ---
