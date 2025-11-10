@@ -102,6 +102,15 @@ class BankAccount:
         self.account_number = account_number
         self.owner_name = owner_name
         self.balance = initial_balance
+    
+    def deposit(self, amount):
+        self.balance += amount
+    
+    def withdraw(self, amount):
+        self.balance -= amount
+    
+    def get_balance(self):
+        return self.balance
         
     def __str__(self):
         return(f"Account {self.account_number} ({self.owner_name}): Balance ${self.balance:,.2f}")
@@ -115,23 +124,22 @@ if __name__ == "__main__":
 
     # Test 1: Create account with initial balance
     account1 = BankAccount("ACC001", "Alice Smith", 1000.0)
-
     print(account1)  # Should print: Account ACC001 (Alice Smith): Balance $1000.00
 
-    # # Test 2: Create account with default balance (0.0)
-    # account2 = BankAccount("ACC002", "Bob Jones")
-    # print(account2)  # Should print: Account ACC002 (Bob Jones): Balance $0.00
+    # Test 2: Create account with default balance (0.0)
+    account2 = BankAccount("ACC002", "Bob Jones")
+    print(account2)  # Should print: Account ACC002 (Bob Jones): Balance $0.00
 
-    # print("\n=== Testing Deposits ===")
-    # account1.deposit(500.0)
-    # print(f"Balance after $500 deposit: ${account1.get_balance()}")  # Should be 1500.0
+    print("\n=== Testing Deposits ===")
+    account1.deposit(500.0)
+    print(f"Balance after $500 deposit: ${account1.get_balance()}")  # Should be 1500.0
 
-    # account2.deposit(250.0)
-    # print(f"Balance after $250 deposit: ${account2.get_balance()}")  # Should be 250.0
+    account2.deposit(250.0)
+    print(f"Balance after $250 deposit: ${account2.get_balance()}")  # Should be 250.0
 
-    # print("\n=== Testing Withdrawals ===")
-    # account1.withdraw(200.0)
-    # print(f"Balance after $200 withdrawal: ${account1.get_balance()}")  # Should be 1300.0
+    print("\n=== Testing Withdrawals ===")
+    account1.withdraw(200.0)
+    print(f"Balance after $200 withdrawal: ${account1.get_balance()}")  # Should be 1300.0
 
     # print("\n=== Testing Error Handling ===")
 
