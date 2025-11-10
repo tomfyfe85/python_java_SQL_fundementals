@@ -30,7 +30,7 @@ BONUS CHALLENGE (Optional):
 Extend the calculator to support:
 - "power" - Exponentiation (a^b)
 - "modulo" - Remainder (a % b)
-- Handle negative numbers correctlyß
+- Handle negative numbers correctly
 
 YOUR TASK:
 1. Use the UMPIRE method to solve this problem
