@@ -99,14 +99,28 @@ class BankAccount:
     initial_balance: float
 
     def __init__(self, account_number, owner_name, initial_balance = 0.00):
+        if initial_balance < 0.00:
+            raise ValueError('Initial balance must equal to or above zero')
+
+        if account_number == "":
+            raise ValueError('Account number must not be empty')
+
         self.account_number = account_number
         self.owner_name = owner_name
         self.balance = initial_balance
-    
+
     def deposit(self, amount):
+        if not isinstance(amount, (float, int)):
+            raise TypeError('Please enter a number')
+        
+        if amount <= 0.00:
+            raise ValueError('Amount must be above zero')
+        
         self.balance += amount
-    
+        
     def withdraw(self, amount):
+        if amount > self.balance:
+            raise ValueError("Insufficient funds")
         self.balance -= amount
     
     def get_balance(self):
@@ -144,54 +158,40 @@ if __name__ == "__main__":
     # print("\n=== Testing Error Handling ===")
 
     # # Test negative initial balance
-    # try:
-    #     bad_account = BankAccount("ACC003", "Charlie", -100.0)
-    #     print("❌ FAIL: Should raise ValueError for negative initial balance")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    try:
+        bad_account = BankAccount("ACC003", "Charlie", -100.0)
+        print("❌ FAIL: Should raise ValueError for negative initial balance")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
     # # Test empty account number
-    # try:
-    #     bad_account = BankAccount("", "Dave", 100.0)
-    #     print("❌ FAIL: Should raise ValueError for empty account number")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
-
-    # # Test empty owner name
-    # try:
-    #     bad_account = BankAccount("ACC004", "", 100.0)
-    #     print("❌ FAIL: Should raise ValueError for empty owner name")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    try:
+        bad_account = BankAccount("", "Dave", 100.0)
+        print("❌ FAIL: Should raise ValueError for empty account number")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
     # # Test negative deposit
-    # try:
-    #     account1.deposit(-50.0)
-    #     print("❌ FAIL: Should raise ValueError for negative deposit")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
-
-    # # Test negative withdrawal
-    # try:
-    #     account1.withdraw(-50.0)
-    #     print("❌ FAIL: Should raise ValueError for negative withdrawal")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    try:
+        account1.deposit(-50.0)
+        print("❌ FAIL: Should raise ValueError for negative deposit")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
     # # Test insufficient funds
-    # try:
-    #     account1.withdraw(10000.0)
-    #     print("❌ FAIL: Should raise ValueError for insufficient funds")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    try:
+        account1.withdraw(10000.0)
+        print("❌ FAIL: Should raise ValueError for insufficient funds")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
     # # Test type errors
-    # try:
-    #     account1.deposit("100")
-    #     print("❌ FAIL: Should raise TypeError for string deposit")
-    # except TypeError as e:
-    #     print(f"✓ TypeError: {e}")
+    try:
+        account1.deposit("100")
+        print("❌ FAIL: Should raise TypeError for string deposit")
+    except TypeError as e:
+        print(f"✓ TypeError: {e}")
 
     # print("\n=== Final Balances ===")
-    # print(f"Account 1: ${account1.get_balance()}")
-    # print(f"Account 2: ${account2.get_balance()}")
+    print(f"Account 1: ${account1.get_balance()}")
+    print(f"Account 2: ${account2.get_balance()}")
