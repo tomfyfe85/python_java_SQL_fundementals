@@ -1,31 +1,32 @@
 # UMPIRE Problem-Solving Worksheet
 
+**Problem Name:** ******\_\_\_\_****** **Date:** ******\_\_\_\_******
+
 ---
 
 ## U - UNDERSTAND
 
-Create a bank account class
-User should be able to add money, withdraw money, and see tbe balance as a
-string representation
+class to track whether a book is available to checkout from a library
 
 **Inputs:**
-in the constructor:
-account no -str, account holder name - str, balance -float
-deposit and withdraw but take an amount - float
-**Outputs:**
-total amount in string form via getbalance().
-total amount is a float
+
+- title (str): Book title
+- author (str): Book author
+- isbn (str): 13-digit ISBN
+- available (bool): Whether book is available
+
+**Outputs:** [type and description]
+
+- is_available(): Return availability status - string
+- **str**(): Return string representation
+
 **Constraints:**
 
-- Account number cannot be empty -ValueError
-- Owner name cannot be empty - ValueError: For invalid values
-- Initial balance cannot be negative ValueError: For invalid values
-- Deposit amount must be positive - ValueError
-- Withdrawal amount must be positive - ValueError
-- Cannot withdraw more than current balance -ValueError
-  **Edge Cases:**
-  Exceptions to Raise:
-- TypeError: For wrong types
+- Title cannot be empty
+- Author cannot be empty
+- ISBN must be exactly 13 digits
+- Cannot checkout a book that's already checked out
+- Cannot return a book that's not checked out
 
 ---
 
@@ -34,46 +35,40 @@ total amount is a float
 [What similar problems have you solved? What data structures and techniques apply?]
 
 **Similar Problems:**
-**Data Structures:** None
-**Patterns/Techniques:**
-add or subtract from
+**Data Structures:** [lists, dicts, strings, sets?]
+**Patterns/Techniques:** [iteration, validation, string methods, filtering?]
 
 ---
 
 ## P - PLAN
 
-[Write pseudocode and create test cases BEFORE coding]
-
 **Pseudocode:**
 
 ```
- BankAccount(account_no: str, owner_name:str, initial_balance: float) -> float:
-    constructor
-    arguments as instance variables
-    but create a new total_balance variable which is initially set to initial_balance
-    - Account number cannot be empty -ValueError
-    - Owner name cannot be empty - ValueError: For invalid values
-    - Initial balance cannot be negative ValueError: For invalid values
-    put data validation in the constructor
+Book:
+    __init__(self, title, author, isbn)
+    add validation
+    - Title cannot be empty
+    - Author cannot be empty
+    - ISBN must be exactly 13 digits
+    self.is_available = True
 
-    deposit(amount)
-    amount should be a float - value error
-    - Deposit amount must be positive - ValueError
-    returns nothing
+    checkout(self)
+        if not self.is_available:
+            raise ValueError
+        !self.is_available
 
-    withdraw(amount)
-    amount should be a float - value error
-    returns nothing
+    return(self)
+        if self.is_available:
+            raise ValueError
+        !self.is_available
 
-    - Withdrawal amount must be positive - ValueError
-    - Cannot withdraw more than current balance -ValueError
-        if amount > total_balance
-            -ValueError
+    is_available()
+        return self.is_available
 
-    - get_balance(): Return current balance
-      returns total_balance() as a float
 
-    __str__ returns total balance as a string representation
+
+
 ```
 
 **Test Cases:**
@@ -119,7 +114,7 @@ def function_name(param: type) -> return_type:
 
 [Analyze time/space complexity and possible improvements]
 
-**Time Complexity:** O(**\_) because [explanation]
-**Space Complexity:** O(\_**) because [explanation]
+**Time Complexity:** O(**_) because [explanation]
+**Space Complexity:** O(_**) because [explanation]
 **Improvements:** [could you optimize further?]
 **Learned:** [what did you learn from this problem?]
