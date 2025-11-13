@@ -1,32 +1,15 @@
 # UMPIRE Problem-Solving Worksheet
 
-**Problem Name:** ******\_\_\_\_****** **Date:** ******\_\_\_\_******
-
 ---
 
 ## U - UNDERSTAND
 
-class to track whether a book is available to checkout from a library
+[Restate the problem in your own words, identify inputs/outputs, constraints, and edge cases]
 
-**Inputs:**
-
-- title (str): Book title
-- author (str): Book author
-- isbn (str): 13-digit ISBN
-- available (bool): Whether book is available
-
+**Inputs:** [type and description]
 **Outputs:** [type and description]
-
-- is_available(): Return availability status - string
-- **str**(): Return string representation
-
-**Constraints:**
-
-- Title cannot be empty
-- Author cannot be empty
-- ISBN must be exactly 13 digits
-- Cannot checkout a book that's already checked out
-- Cannot return a book that's not checked out
+**Constraints:** [list all rules and limitations]
+**Edge Cases:** [what could go wrong? boundary conditions?]
 
 ---
 
@@ -42,33 +25,15 @@ class to track whether a book is available to checkout from a library
 
 ## P - PLAN
 
+[Write pseudocode and create test cases BEFORE coding]
+
 **Pseudocode:**
 
 ```
-Book:
-    __init__(self, title, author, isbn)
-    add validation
-    - Title cannot be empty
-    - Author cannot be empty
-    - ISBN must be exactly 13 digits
-    self.is_available = True
-
-    checkout(self)
-        if not self.is_available:
-            raise ValueError
-        !self.is_available
-
-    return(self)
-        if self.is_available:
-            raise ValueError
-        !self.is_available
-
-    is_available()
-        return self.is_available
-
-
-
-
+function_name(parameters):
+    1. [step]
+    2. [step]
+    return result
 ```
 
 **Test Cases:**
