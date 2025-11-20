@@ -113,32 +113,34 @@ UNITS = {'C', 'F'}
 # ==========================================
 
 class Temperature():
-    value:float
-    unit:str
 
     def __init__(self, value, unit):
+
         if unit not in UNITS:
             raise ValueError('Unit must be C or F')
-        
-        if unit == 'C' and value < ABSOLUTE_ZERO_C or unit == 'F' and value < ABSOLUTE_ZERO_F:
-            raise ValueError('Value must be above absolute zero')
 
-
-        self.value = value
-        self.unit = unit 
-        
         if unit == 'C':
             self._celsius = value
         else:
-            self._celsius = ((value - 32) * 5/9)
-            
+            self._celsius = self._f_to_c_converter(value)
+
+        self._absolute_zero_validator(self._celsius)
+
+    def _f_to_c_converter(self, value):
+        return (value - 32) * 5/9
+
+    def _absolute_zero_validator(self, celsius_value):
+        if celsius_value < ABSOLUTE_ZERO_C:
+            raise ValueError('Value must be above absolute zero')
+
     @property
     def celsius(self):
         return self._celsius
-    
+
     @celsius.setter
     def celsius(self, value):
         self._celsius = value
+        self._absolute_zero_validator(self._celsius)
 
     @property
     def fahrenheit(self):
@@ -146,9 +148,10 @@ class Temperature():
 
     @fahrenheit.setter
     def fahrenheit(self, value):
-        self._celsius = (value - 32) * 5/9
-        
-    
+        self._celsius = self._f_to_c_converter(value)
+        self._absolute_zero_validator(self._celsius)
+
+
     def __str__(self):
         return f"{self._celsius}°C ({self.fahrenheit}°F)"
 
@@ -217,16 +220,16 @@ if __name__ == "__main__":
 
     # print("\n=== Edge Cases ===")
 
-    # # Test absolute zero exactly - Expected: Should work (at the boundary)
-    # temp_abs_c = Temperature(ABSOLUTE_ZERO_C, 'C')
-    # print(f"Absolute zero C: {temp_abs_c}")        # Expected: -273.15°C (-459.67°F)
+    # Test absolute zero exactly - Expected: Should work (at the boundary)
+    temp_abs_c = Temperature(ABSOLUTE_ZERO_C, 'C')
+    print(f"Absolute zero C: {temp_abs_c}")        # Expected: -273.15°C (-459.67°F)
 
-    # temp_abs_f = Temperature(ABSOLUTE_ZERO_F, 'F')
-    # print(f"Absolute zero F: {temp_abs_f}")        # Expected: -273.15°C (-459.67°F)
+    temp_abs_f = Temperature(ABSOLUTE_ZERO_F, 'F')
+    print(f"Absolute zero F: {temp_abs_f}")        # Expected: -273.15°C (-459.67°F)
 
-    # # Test freezing/boiling points
-    # freezing = Temperature(0, 'C')
-    # print(f"\nFreezing point: {freezing}")         # Expected: 0.0°C (32.0°F)
+    # Test freezing/boiling points
+    freezing = Temperature(0, 'C')
+    print(f"\nFreezing point: {freezing}")         # Expected: 0.0°C (32.0°F)
 
-    # boiling = Temperature(100, 'C')
-    # print(f"Boiling point: {boiling}")             # Expected: 100.0°C (212.0°F)
+    boiling = Temperature(100, 'C')
+    print(f"Boiling point: {boiling}")             # Expected: 100.0°C (212.0°F)

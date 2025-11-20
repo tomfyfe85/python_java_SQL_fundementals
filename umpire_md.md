@@ -48,7 +48,7 @@ class Temperature(parameters):
     1. constructor
     validation:
     unit can't be empty and must be "F" or "C" - Value error
-    
+
     if elif - value can't be below ab zero for C or F
 
     must use _celsius to store initial celsius
@@ -56,16 +56,13 @@ class Temperature(parameters):
     unit is just so you check the iput
 
     if 'C' then store value in the instance variable
-    elfif 'F' then convert from F to C and store in instance variable 
+    elif 'F' then convert from F to C and store in instance variable 
 
     write getter and setter for each
-    
-    
 
     str method is 'self._celsius (self.fahrenheit)'
 
 
-    2. [step]
     return result
 ```
 
