@@ -108,14 +108,18 @@ ABSOLUTE_ZERO_C = -273.15
 ABSOLUTE_ZERO_F = -459.67
 UNITS = {'C', 'F'}
 
-# ==========================================
-# YOUR CODE GOES BELOW
-# ==========================================
-
 class Temperature():
-
-    def __init__(self, value, unit):
-
+    """Represents a temperatue that can be accessed in Celsius and Fahrenheit"""
+    
+    def __init__(self, value:float, unit:str) -> None:
+        """Create a Temperature object.
+        Args:
+            value: Temperature value
+            unit: 'C' for Celsius or 'F' for Fahrenheit
+            
+        Raises:
+            ValueError: If unit is invalid or temperature is below absolute zero
+        """
         if unit not in UNITS:
             raise ValueError('Unit must be C or F')
 
@@ -126,31 +130,52 @@ class Temperature():
 
         self._absolute_zero_validator(self._celsius)
 
-    def _f_to_c_converter(self, value):
+    def _f_to_c_converter(self, value:float) -> float:
+        """Converts Fahrenheit to Celsius
+        Args:
+            Value is temp in Fahrenheit
+        """
         return (value - 32) * 5/9
 
-    def _absolute_zero_validator(self, celsius_value):
-        if celsius_value < ABSOLUTE_ZERO_C:
+    def _absolute_zero_validator(self, celsius:float) -> None:
+        """Checks if the given temp is below absolute zero
+        Args:
+            temp in celsius to validate
+        """
+        if celsius < ABSOLUTE_ZERO_C:
             raise ValueError('Value must be above absolute zero')
 
     @property
-    def celsius(self):
+    def celsius(self) -> float:
         return self._celsius
 
     @celsius.setter
-    def celsius(self, value):
-        self._celsius = value
-        self._absolute_zero_validator(self._celsius)
+    def celsius(self, value:float) -> None:
+        """Sets _celsius to given value if validation is successful
+        Args:
+            Value is temp in Celsius
+        """
+        celsius_value = value
+        self._absolute_zero_validator(celsius_value)
+        self._celsius = celsius_value
 
     @property
-    def fahrenheit(self):
+    def fahrenheit(self) -> float:
+        """Converts _celsius to Fahrenheit
+        """
         return (self._celsius * 9/5) + 32
 
     @fahrenheit.setter
-    def fahrenheit(self, value):
-        self._celsius = self._f_to_c_converter(value)
-        self._absolute_zero_validator(self._celsius)
-
+    def fahrenheit(self, value:float) -> None:
+        """Converts Fahrenheit to Celsius and sets 
+        _celsius to given value if validation is successful
+        
+        Args:
+            Value is temp in Fahrenheit
+        """
+        celsius_value = self._f_to_c_converter(value)
+        self._absolute_zero_validator(celsius_value)
+        self._celsius = celsius_value
 
     def __str__(self):
         return f"{self._celsius}°C ({self.fahrenheit}°F)"
