@@ -14,45 +14,6 @@ This challenge integrates everything you've learned in Module 2:
 - Working with collections
 
 ===================================
-REQUIREMENTS
-===================================
-
-CLASS 1: Product
-----------------
-Attributes:
-- name (str): Product name
-- price (float): Product price
-- category (str): Product category
-
-Methods:
-- __init__(name, price, category): Constructor
-- __str__(): Return string representation
-
-Validation:
-- Name cannot be empty
-- Price must be positive
-- Category cannot be empty
-
-===================================
-
-CLASS 2: ShoppingCart
----------------------
-Attributes:
-- items (dict or list): Store products and quantities
-
-Methods:
-- add_product(product, quantity=1): Add product to cart
-- remove_product(product_name): Remove product from cart
-- get_subtotal(): Calculate total before tax
-- get_tax(tax_rate=0.08): Calculate tax (default 8%)
-- get_total(tax_rate=0.08): Calculate total with tax
-- __str__(): Display cart contents
-
-Validation:
-- Quantity must be positive
-- Can't remove product that isn't in cart
-
-===================================
 EXAMPLES
 ===================================
 
@@ -111,9 +72,33 @@ Think about which would make it easier to:
 # Constants
 DEFAULT_TAX_RATE = 0.08
 
-# ==========================================
-# YOUR CODE GOES BELOW
-# ==========================================
+class Product():
+    def __init__(self, name:str, price:float, category:str)->None:
+        """Create Product object
+
+        Args:
+            name: Name of product
+            price: Price in pounds
+            category: Category of product
+
+        Raises:
+            ValueError if validation fails
+        """
+        if not name or not category:
+            raise ValueError("Name and category cannot be empty")
+        if price < 0.00:
+            raise ValueError("Price must be above 0")
+
+
+        self.name = name
+        self.price = price
+        self.category = category
+
+    def __str__(self):
+        return f"{self.name} = ${self.price}, ({self.category})"
+
+
+
 
 
 # ==========================================
