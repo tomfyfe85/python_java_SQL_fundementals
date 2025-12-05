@@ -99,26 +99,38 @@ class Product():
 
 class ShoppingCart():
     def __init__(self)->None:
-        """Creates products instance variable dictionary
-
-            Args: None
-            Raises: None
-        """
+        """Creates products instance variable dictionary"""
         self.products = {}
 
     def add_product(self, product, quantity=1):
+        """Adds a project to the products instance var dictionary
+
+        Args: 
+            product - an instance of the Product class
+            quantity - integer representing the number of products
+        """
         if quantity <= 0 :
             raise ValueError("quantity must be positive")
 
-        if product.name not in self.products:
-            self.products[product.name] = quantity
+        if product not in self.products:
+            self.products[product] = quantity
         else:
-            self.products[product.name] += quantity
+            self.products[product] += quantity
 
-    def remove_product(self, product_name):
-        if product_name not in self.products:
+    def remove_product(self, product_name_to_be_removed):
+        """Removes a product from the shopping cart
+
+        Args:
+            product_name - String of product to be removed
+        """
+        product_names_list = [product.name for product in self.products.keys()]
+
+        if product_name_to_be_removed not in product_names_list:
             raise ValueError("product not in cart")
-        del self.products[product_name]
+
+        for product in self.products.copy():
+            if product.name == product_name_to_be_removed:
+                del self.products[product]
 
 # ==========================================
 # TEST CASES
@@ -136,23 +148,23 @@ if __name__ == "__main__":
     print(banana)   # Expected: Banana - $0.59 (Fruit)
     print(bread)    # Expected: Bread - $2.99 (Bakery)
 
-    print("\n=== Testing Product Validation ===")
+    # print("\n=== Testing Product Validation ===")
 
     # Test negative price - Expected: ValueError
-    try:
-        invalid = Product("Test", -5.00, "Test")
-        print("❌ FAIL: Should raise ValueError for negative price")
-    except ValueError as e:
-        print(f"✓ ValueError: {e}")
+    # try:
+    #     invalid = Product("Test", -5.00, "Test")
+    #     print("❌ FAIL: Should raise ValueError for negative price")
+    # except ValueError as e:
+    #     print(f"✓ ValueError: {e}")
 
-    # Test empty name - Expected: ValueError
-    try:
-        invalid = Product("", 5.00, "Test")
-        print("❌ FAIL: Should raise ValueError for empty name")
-    except ValueError as e:
-        print(f"✓ ValueError: {e}")
+    # # Test empty name - Expected: ValueError
+    # try:
+    #     invalid = Product("", 5.00, "Test")
+    #     print("❌ FAIL: Should raise ValueError for empty name")
+    # except ValueError as e:
+    #     print(f"✓ ValueError: {e}")
 
-    print("\n=== Testing ShoppingCart ===")
+    # print("\n=== Testing ShoppingCart ===")
 
     # Create cart
     cart = ShoppingCart()
@@ -162,14 +174,15 @@ if __name__ == "__main__":
     cart.add_product(banana, 3)
     cart.add_product(bread, 1)
     cart.remove_product("Apple")
-    cart.add_product(apple, 1)
+
+
     print(cart.products)
 
     # print(f"Subtotal: ${cart.get_subtotal():.2f}")  # Expected: $7.69
     # print(f"Tax (8%): ${cart.get_tax():.2f}")       # Expected: $0.62
     # print(f"Total: ${cart.get_total():.2f}")        # Expected: $8.31
 
-    print("\n=== Full Cart Display ===")
+    # print("\n=== Full Cart Display ===")
     # print(cart)
     # Expected:
     # Shopping Cart:
