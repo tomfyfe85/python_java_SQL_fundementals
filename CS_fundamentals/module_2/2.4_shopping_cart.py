@@ -111,11 +111,11 @@ class ShoppingCart():
             raise ValueError("quantity must be positive")
 
         if product.name not in self.products:
-            self.products[product] = quantity
+            self.products[product.name] = quantity
         else:
-            self.products[product] += quantity
+            self.products[product.name] += quantity
 
-    def remove_product(product_name):
+    def remove_product(self, product_name):
         if product_name not in self.products:
             raise ValueError("product not in cart")
         del self.products[product_name]
@@ -161,6 +161,9 @@ if __name__ == "__main__":
     cart.add_product(apple, 5)
     cart.add_product(banana, 3)
     cart.add_product(bread, 1)
+    cart.remove_product("Apple")
+    cart.add_product(apple, 1)
+    print(cart.products)
 
     # print(f"Subtotal: ${cart.get_subtotal():.2f}")  # Expected: $7.69
     # print(f"Tax (8%): ${cart.get_tax():.2f}")       # Expected: $0.62
