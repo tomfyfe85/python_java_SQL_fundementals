@@ -1,71 +1,7 @@
 """
 Challenge 2.1: Shopping Cart System
-
-===================================
-OBJECTIVE
-===================================
-
-Build a shopping cart system with products and a cart that calculates totals.
-This challenge integrates everything you've learned in Module 2:
-- Creating multiple classes
-- Encapsulation
-- Properties
-- Input validation
-- Working with collections
-
-===================================
-EXAMPLES
-===================================
-
-# Create products
-apple = Product("Apple", 0.99, "Fruit")
-banana = Product("Banana", 0.59, "Fruit")
-bread = Product("Bread", 2.99, "Bakery")
-
-# Create cart
-cart = ShoppingCart()
-cart.add_product(apple, quantity=5)
-cart.add_product(banana, quantity=3)
-cart.add_product(bread, quantity=1)
-
-print(cart.get_subtotal())  # 7.69
-print(cart.get_tax())       # 0.62 (8% of 7.69)
-print(cart.get_total())     # 8.31
-
-print(cart)
-# Output:
-# Shopping Cart:
-# - Apple x5: $4.95
-# - Banana x3: $1.77
-# - Bread x1: $2.99
-# Subtotal: $7.69
-# Tax (8%): $0.62
-# Total: $8.31
-
 ===================================
 YOUR TASK
-===================================
-
-1. Start with UMPIRE planning
-2. Implement the Product class first (simpler)
-3. Test the Product class
-4. Implement the ShoppingCart class
-5. Test the complete system
-6. Add docstrings and type hints
-
-===================================
-HINTS
-===================================
-
-For ShoppingCart.items, you could use:
-- Dictionary: {product_name: {"product": Product, "quantity": int}}
-- List of tuples: [(Product, quantity), ...]
-
-Think about which would make it easier to:
-- Find a product by name
-- Update quantities
-- Calculate totals
-
 ===================================
 """
 
@@ -101,8 +37,10 @@ class ShoppingCart():
     def __init__(self)->None:
         """Creates products instance variable dictionary"""
         self.products = {}
+        self.subtotal = 0
+        self.calculated_tax = 0
 
-    def add_product(self, product, quantity=1):
+    def add_product(self, product: object, quantity:int=1)-> None:
         """Adds a project to the products instance var dictionary
 
         Args: 
@@ -117,7 +55,7 @@ class ShoppingCart():
         else:
             self.products[product] += quantity
 
-    def remove_product(self, product_name_to_be_removed):
+    def remove_product(self, product_name_to_be_removed:str)-> None:
         """Removes a product from the shopping cart
 
         Args:
@@ -131,6 +69,42 @@ class ShoppingCart():
         for product in self.products.copy():
             if product.name == product_name_to_be_removed:
                 del self.products[product]
+        
+    def get_subtotal(self)-> int:
+        """Calculate Shopping basket subtotal
+
+        Returns string including subtotal
+        """
+        self.subtotal = 0
+        for product, quantity in self.products.items():
+            self.subtotal += (product.price * quantity)
+        
+        return self.subtotal
+
+    def get_tax(self):
+        """Calculates tax from teh subtotal
+        
+        Returns calculated tax
+        """
+        self.calculated_tax = DEFAULT_TAX_RATE * self.get_subtotal()
+        return self.calculated_tax 
+
+    def get_total(self):
+        """Calculates and returns total amount due"""
+        return self.get_tax() + self.subtotal
+
+    def __str__(self):
+        result = 'Shopping Cart:\n'
+
+        for product, quantity in self.products.items():
+            line_total = product.price * quantity
+            result += f"- {product.name} x{quantity}: ${line_total}\n"
+
+        result += f"Subtotal: ${self.subtotal}\n"
+        result += f"Tax (8%): ${self.get_tax():.2f}\n"
+        result += f"Total: ${self.get_total():.2f}"
+        return result
+
 
 # ==========================================
 # TEST CASES
@@ -148,23 +122,23 @@ if __name__ == "__main__":
     print(banana)   # Expected: Banana - $0.59 (Fruit)
     print(bread)    # Expected: Bread - $2.99 (Bakery)
 
-    # print("\n=== Testing Product Validation ===")
+    print("\n=== Testing Product Validation ===")
 
     # Test negative price - Expected: ValueError
-    # try:
-    #     invalid = Product("Test", -5.00, "Test")
-    #     print("❌ FAIL: Should raise ValueError for negative price")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    try:
+        invalid = Product("Test", -5.00, "Test")
+        print("❌ FAIL: Should raise ValueError for negative price")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
     # # Test empty name - Expected: ValueError
-    # try:
-    #     invalid = Product("", 5.00, "Test")
-    #     print("❌ FAIL: Should raise ValueError for empty name")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    try:
+        invalid = Product("", 5.00, "Test")
+        print("❌ FAIL: Should raise ValueError for empty name")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
-    # print("\n=== Testing ShoppingCart ===")
+    print("\n=== Testing ShoppingCart ===")
 
     # Create cart
     cart = ShoppingCart()
@@ -173,17 +147,13 @@ if __name__ == "__main__":
     cart.add_product(apple, 5)
     cart.add_product(banana, 3)
     cart.add_product(bread, 1)
-    cart.remove_product("Apple")
 
+    print(f"Subtotal: ${cart.get_subtotal():.2f}")  # Expected: $9.71
+    print(f"Tax (8%): ${cart.get_tax():.2f}")       # Expected: $0.62
+    print(f"Total: ${cart.get_total():.2f}")        # Expected: $8.31
 
-    print(cart.products)
-
-    # print(f"Subtotal: ${cart.get_subtotal():.2f}")  # Expected: $7.69
-    # print(f"Tax (8%): ${cart.get_tax():.2f}")       # Expected: $0.62
-    # print(f"Total: ${cart.get_total():.2f}")        # Expected: $8.31
-
-    # print("\n=== Full Cart Display ===")
-    # print(cart)
+    print("\n=== Full Cart Display ===")
+    print(cart)
     # Expected:
     # Shopping Cart:
     # - Apple x5: $4.95
@@ -193,24 +163,24 @@ if __name__ == "__main__":
     # Tax (8%): $0.62
     # Total: $8.31
 
-    # print("\n=== Testing Remove Product ===")
+    print("\n=== Testing Remove Product ===")
 
-    # cart.remove_product("Banana")
-    # print(f"After removing bananas:")
-    # print(f"Subtotal: ${cart.get_subtotal():.2f}")  # Expected: $7.94
+    cart.remove_product("Banana")
+    print(f"After removing bananas:")
+    print(f"Subtotal: ${cart.get_subtotal():.2f}")  # Expected: $7.94
 
     # # Try to remove product not in cart - Expected: ValueError
-    # try:
-    #     cart.remove_product("Orange")
-    #     print("❌ FAIL: Should raise ValueError for product not in cart")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    try:
+        cart.remove_product("Orange")
+        print("❌ FAIL: Should raise ValueError for product not in cart")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
-    # print("\n=== Testing Cart Validation ===")
+    print("\n=== Testing Cart Validation ===")
 
     # # Try to add with negative quantity - Expected: ValueError
-    # try:
-    #     cart.add_product(apple, -5)
-    #     print("❌ FAIL: Should raise ValueError for negative quantity")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    try:
+        cart.add_product(apple, -5)
+        print("❌ FAIL: Should raise ValueError for negative quantity")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
