@@ -48,7 +48,7 @@ class ShoppingCart():
             quantity - integer representing the number of products
         """
         if quantity <= 0 :
-            raise ValueError("quantity must be positive")
+            raise ValueError("quantity must be positive")s
 
         if product not in self.products:
             self.products[product] = quantity
