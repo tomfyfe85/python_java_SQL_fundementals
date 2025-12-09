@@ -36,9 +36,9 @@ class Product():
 class ShoppingCart():
     def __init__(self)->None:
         """Creates products instance variable dictionary"""
-        self.products = {}
-        self.subtotal = 0
-        self.calculated_tax = 0
+        self._products = {}
+        self._subtotal = 0
+        self._calculated_tax = 0
 
     def add_product(self, product: object, quantity:int=1)-> None:
         """Adds a project to the products instance var dictionary
@@ -48,12 +48,12 @@ class ShoppingCart():
             quantity - integer representing the number of products
         """
         if quantity <= 0 :
-            raise ValueError("quantity must be positive")s
+            raise ValueError("quantity must be positive")
 
-        if product not in self.products:
-            self.products[product] = quantity
+        if product not in self._products:
+            self._products[product] = quantity
         else:
-            self.products[product] += quantity
+            self._products[product] += quantity
 
     def remove_product(self, product_name_to_be_removed:str)-> None:
         """Removes a product from the shopping cart
@@ -61,46 +61,46 @@ class ShoppingCart():
         Args:
             product_name - String of product to be removed
         """
-        product_names_list = [product.name for product in self.products.keys()]
+        product_names_list = [product.name for product in self._products.keys()]
 
         if product_name_to_be_removed not in product_names_list:
             raise ValueError("product not in cart")
 
-        for product in self.products.copy():
+        for product in self._products.copy():
             if product.name == product_name_to_be_removed:
-                del self.products[product]
+                del self._products[product]
         
     def get_subtotal(self)-> int:
         """Calculate Shopping basket subtotal
 
         Returns string including subtotal
         """
-        self.subtotal = 0
-        for product, quantity in self.products.items():
-            self.subtotal += (product.price * quantity)
+        self._subtotal = 0
+        for product, quantity in self._products.items():
+            self._subtotal += (product.price * quantity)
         
-        return self.subtotal
+        return self._subtotal
 
     def get_tax(self):
-        """Calculates tax from teh subtotal
+        """Calculates tax from the subtotal
         
         Returns calculated tax
         """
-        self.calculated_tax = DEFAULT_TAX_RATE * self.get_subtotal()
-        return self.calculated_tax 
+        self._calculated_tax = DEFAULT_TAX_RATE * self.get_subtotal()
+        return self._calculated_tax 
 
     def get_total(self):
         """Calculates and returns total amount due"""
-        return self.get_tax() + self.subtotal
+        return self.get_tax() + self._subtotal
 
     def __str__(self):
         result = 'Shopping Cart:\n'
 
-        for product, quantity in self.products.items():
+        for product, quantity in self._products.items():
             line_total = product.price * quantity
             result += f"- {product.name} x{quantity}: ${line_total}\n"
 
-        result += f"Subtotal: ${self.subtotal}\n"
+        result += f"Subtotal: ${self._subtotal}\n"
         result += f"Tax (8%): ${self.get_tax():.2f}\n"
         result += f"Total: ${self.get_total():.2f}"
         return result
