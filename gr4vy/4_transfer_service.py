@@ -130,7 +130,7 @@ class TransferService:
         pass
 
     def create_account(self, account_id: str, owner_name: str,
-                      initial_balance: Decimal = Decimal('0.00')) -> Account:
+                    initial_balance: Decimal = Decimal('0.00')) -> Account:
         """
         Create a new account and add it to the registry.
 

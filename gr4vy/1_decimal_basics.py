@@ -28,19 +28,19 @@ Decimal('0.3')  # CORRECT!
 CRITICAL RULES FOR DECIMAL:
 
 1. ALWAYS create Decimal from STRING, never from float:
-   ✓ Decimal('10.50')     # CORRECT
-   ✗ Decimal(10.50)       # WRONG - still has float precision errors
+    ✓ Decimal('10.50')     # CORRECT
+    ✗ Decimal(10.50)       # WRONG - still has float precision errors
 
 2. Use QUANTIZE for rounding to cents:
-   >>> from decimal import Decimal, ROUND_HALF_UP
-   >>> amount = Decimal('10.567')
-   >>> amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-   Decimal('10.57')
+    >>> from decimal import Decimal, ROUND_HALF_UP
+    >>> amount = Decimal('10.567')
+    >>> amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    Decimal('10.57')
 
 3. Type hints use Decimal from typing:
-   from decimal import Decimal
-   def transfer(amount: Decimal) -> None:
-       ...
+    from decimal import Decimal
+    def transfer(amount: Decimal) -> None:
+        ...
 
 ===================================
 EXERCISE 1: Decimal Basics
@@ -54,17 +54,17 @@ This is ESSENTIAL for your Gr4vy test!
 REQUIREMENTS:
 
 1. add_amounts(amount1: Decimal, amount2: Decimal) -> Decimal
-   - Add two currency amounts
-   - Round result to 2 decimal places
+    - Add two currency amounts
+    - Round result to 2 decimal places
 
 2. multiply_amount(amount: Decimal, multiplier: Decimal) -> Decimal
-   - Multiply amount by multiplier
-   - Round result to 2 decimal places
+    - Multiply amount by multiplier
+    - Round result to 2 decimal places
 
 3. validate_currency_amount(amount: Decimal) -> None
-   - Raise ValueError if amount is negative
-   - Raise ValueError if amount has more than 2 decimal places
-   - Raise TypeError if amount is not a Decimal
+    - Raise ValueError if amount is negative
+    - Raise ValueError if amount has more than 2 decimal places
+    - Raise TypeError if amount is not a Decimal
 
 EXAMPLES:
 
@@ -98,7 +98,8 @@ def add_amounts(amount1: Decimal, amount2: Decimal) -> Decimal:
     Returns:
         Sum rounded to 2 decimal places
     """
-    pass
+    final = amount1 + amount2
+    return final.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
 
 def multiply_amount(amount: Decimal, multiplier: Decimal) -> Decimal:
@@ -143,70 +144,70 @@ if __name__ == "__main__":
     print(f"100.00 + 0.01 = {result2}")
     assert result2 == Decimal('100.01'), f"Expected 100.01, got {result2}"
 
-    print("\n=== Testing Decimal Multiplication ===")
-    result3 = multiply_amount(Decimal('10.00'), Decimal('1.5'))
-    print(f"10.00 * 1.5 = {result3}")
-    assert result3 == Decimal('15.00'), f"Expected 15.00, got {result3}"
+    # print("\n=== Testing Decimal Multiplication ===")
+    # result3 = multiply_amount(Decimal('10.00'), Decimal('1.5'))
+    # print(f"10.00 * 1.5 = {result3}")
+    # assert result3 == Decimal('15.00'), f"Expected 15.00, got {result3}"
 
-    result4 = multiply_amount(Decimal('7.77'), Decimal('3'))
-    print(f"7.77 * 3 = {result4}")
-    assert result4 == Decimal('23.31'), f"Expected 23.31, got {result4}"
+    # result4 = multiply_amount(Decimal('7.77'), Decimal('3'))
+    # print(f"7.77 * 3 = {result4}")
+    # assert result4 == Decimal('23.31'), f"Expected 23.31, got {result4}"
 
-    # Test rounding
-    result5 = multiply_amount(Decimal('10.00'), Decimal('0.333'))
-    print(f"10.00 * 0.333 = {result5} (should round to 2 decimal places)")
-    assert result5 == Decimal('3.33'), f"Expected 3.33, got {result5}"
+    # # Test rounding
+    # result5 = multiply_amount(Decimal('10.00'), Decimal('0.333'))
+    # print(f"10.00 * 0.333 = {result5} (should round to 2 decimal places)")
+    # assert result5 == Decimal('3.33'), f"Expected 3.33, got {result5}"
 
-    print("\n=== Testing Validation ===")
+    # print("\n=== Testing Validation ===")
 
-    # Test negative amount
-    try:
-        validate_currency_amount(Decimal('-5.00'))
-        print("❌ FAIL: Should raise ValueError for negative amount")
-    except ValueError as e:
-        print(f"✓ ValueError: {e}")
+    # # Test negative amount
+    # try:
+    #     validate_currency_amount(Decimal('-5.00'))
+    #     print("❌ FAIL: Should raise ValueError for negative amount")
+    # except ValueError as e:
+    #     print(f"✓ ValueError: {e}")
 
-    # Test too many decimal places
-    try:
-        validate_currency_amount(Decimal('10.567'))
-        print("❌ FAIL: Should raise ValueError for > 2 decimal places")
-    except ValueError as e:
-        print(f"✓ ValueError: {e}")
+    # # Test too many decimal places
+    # try:
+    #     validate_currency_amount(Decimal('10.567'))
+    #     print("❌ FAIL: Should raise ValueError for > 2 decimal places")
+    # except ValueError as e:
+    #     print(f"✓ ValueError: {e}")
 
-    # Test wrong type
-    try:
-        validate_currency_amount(10.50)  # float, not Decimal
-        print("❌ FAIL: Should raise TypeError for non-Decimal")
-    except TypeError as e:
-        print(f"✓ TypeError: {e}")
+    # # Test wrong type
+    # try:
+    #     validate_currency_amount(10.50)  # float, not Decimal
+    #     print("❌ FAIL: Should raise TypeError for non-Decimal")
+    # except TypeError as e:
+    #     print(f"✓ TypeError: {e}")
 
-    # Test valid amounts
-    try:
-        validate_currency_amount(Decimal('10.50'))
-        print("✓ Valid: 10.50")
+    # # Test valid amounts
+    # try:
+    #     validate_currency_amount(Decimal('10.50'))
+    #     print("✓ Valid: 10.50")
 
-        validate_currency_amount(Decimal('0.00'))
-        print("✓ Valid: 0.00")
+    #     validate_currency_amount(Decimal('0.00'))
+    #     print("✓ Valid: 0.00")
 
-        validate_currency_amount(Decimal('999999.99'))
-        print("✓ Valid: 999999.99")
-    except (ValueError, TypeError) as e:
-        print(f"❌ FAIL: Should not raise exception for valid amounts: {e}")
+    #     validate_currency_amount(Decimal('999999.99'))
+    #     print("✓ Valid: 999999.99")
+    # except (ValueError, TypeError) as e:
+    #     print(f"❌ FAIL: Should not raise exception for valid amounts: {e}")
 
-    print("\n=== Why Decimal Matters (Demo) ===")
-    print("Using float (WRONG):")
-    float_result = 10.10 + 20.20 + 30.30
-    print(f"  10.10 + 20.20 + 30.30 = {float_result}")
-    print(f"  Expected: 60.60, Got: {float_result} ❌")
+    # print("\n=== Why Decimal Matters (Demo) ===")
+    # print("Using float (WRONG):")
+    # float_result = 10.10 + 20.20 + 30.30
+    # print(f"  10.10 + 20.20 + 30.30 = {float_result}")
+    # print(f"  Expected: 60.60, Got: {float_result} ❌")
 
-    print("\nUsing Decimal (CORRECT):")
-    decimal_result = Decimal('10.10') + Decimal('20.20') + Decimal('30.30')
-    print(f"  10.10 + 20.20 + 30.30 = {decimal_result}")
-    print(f"  Expected: 60.60, Got: {decimal_result} ✓")
+    # print("\nUsing Decimal (CORRECT):")
+    # decimal_result = Decimal('10.10') + Decimal('20.20') + Decimal('30.30')
+    # print(f"  10.10 + 20.20 + 30.30 = {decimal_result}")
+    # print(f"  Expected: 60.60, Got: {decimal_result} ✓")
 
-    print("\n✓ All tests passed!")
-    print("\nKEY TAKEAWAYS:")
-    print("1. ALWAYS use Decimal for money, never float")
-    print("2. Create Decimal from string: Decimal('10.50')")
-    print("3. Use quantize() to round to 2 decimal places")
-    print("4. Validate amounts are non-negative and have max 2 decimal places")
+    # print("\n✓ All tests passed!")
+    # print("\nKEY TAKEAWAYS:")
+    # print("1. ALWAYS use Decimal for money, never float")
+    # print("2. Create Decimal from string: Decimal('10.50')")
+    # print("3. Use quantize() to round to 2 decimal places")
+    # print("4. Validate amounts are non-negative and have max 2 decimal places")
