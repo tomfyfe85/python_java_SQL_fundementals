@@ -1,0 +1,276 @@
+"""
+Exercise 2: Custom Exceptions (Fintech Error Handling)
+
+INTRODUCTION TO CUSTOM EXCEPTIONS:
+
+Python has built-in exceptions (ValueError, TypeError, etc.), but sometimes
+you need MORE SPECIFIC exceptions for your domain.
+
+For a payment system, "ValueError: Invalid amount" is not as clear as
+"InsufficientFundsError: Account has $50.00 but transfer requires $100.00"
+
+WHY CUSTOM EXCEPTIONS?
+
+1. CLARITY: The exception name tells you exactly what went wrong
+2. HANDLING: You can catch specific errors separately
+3. PROFESSIONALISM: Shows you understand the domain
+
+CREATING CUSTOM EXCEPTIONS:
+
+Simply inherit from Exception:
+
+    class MyCustomError(Exception):
+        pass
+
+That is it! Just inherit from Exception.
+
+BEST PRACTICES:
+
+1. Name exceptions with "Error" suffix: InsufficientFundsError
+2. Inherit from the most specific built-in exception:
+   - ValueError for invalid values
+   - TypeError for wrong types
+   - Exception for domain-specific errors
+
+3. Add helpful error messages when raising
+
+EXAMPLE HIERARCHY FOR PAYMENTS:
+
+    class PaymentError(Exception):
+        pass
+
+    class InsufficientFundsError(PaymentError):
+        pass
+
+    class AccountNotFoundError(PaymentError):
+        pass
+
+USING CUSTOM EXCEPTIONS:
+
+    try:
+        transfer_service.transfer(from_id, to_id, amount)
+    except InsufficientFundsError as e:
+        print(f"Payment failed: {e}")
+    except AccountNotFoundError as e:
+        print(f"Invalid account: {e}")
+    except PaymentError as e:
+        print(f"Unexpected payment error: {e}")
+
+===================================
+EXERCISE 2: Custom Exceptions
+===================================
+
+YOUR TASK:
+
+Create custom exceptions for a money transfer system.
+This is ESSENTIAL for your Gr4vy test!
+
+REQUIREMENTS:
+
+Create these custom exception classes:
+
+1. TransferError (base exception)
+   - Base class for all transfer-related errors
+   - Inherits from Exception
+
+2. InsufficientFundsError
+   - Raised when source account does not have enough money
+   - Inherits from TransferError
+
+3. AccountNotFoundError
+   - Raised when an account ID does not exist
+   - Inherits from TransferError
+
+4. InvalidAmountError
+   - Raised when transfer amount is invalid (negative, zero, wrong type)
+   - Inherits from TransferError
+
+5. SameAccountError
+   - Raised when trying to transfer to the same account
+   - Inherits from TransferError
+
+Then implement these validation functions that raise the exceptions:
+
+6. validate_transfer_amount(amount: Decimal) -> None
+   - Raise InvalidAmountError if amount <= 0
+   - Raise InvalidAmountError if amount has more than 2 decimal places
+
+7. validate_different_accounts(from_id: str, to_id: str) -> None
+   - Raise SameAccountError if from_id == to_id
+
+EXAMPLES:
+
+validate_transfer_amount(Decimal('-10.00'))
+# Raises: InvalidAmountError: Transfer amount must be positive
+
+validate_transfer_amount(Decimal('0.00'))
+# Raises: InvalidAmountError: Transfer amount must be positive
+
+validate_different_accounts('ACC123', 'ACC123')
+# Raises: SameAccountError: Cannot transfer to the same account
+"""
+
+from decimal import Decimal
+
+# ==========================================
+# YOUR CODE GOES BELOW
+# ==========================================
+
+# Define your custom exceptions here
+class TransferError(Exception):
+    """Base exception for all transfer-related errors"""
+    pass
+
+
+# TODO: Create InsufficientFundsError
+
+
+# TODO: Create AccountNotFoundError
+
+
+# TODO: Create InvalidAmountError
+
+
+# TODO: Create SameAccountError
+
+
+# Implement validation functions
+def validate_transfer_amount(amount: Decimal) -> None:
+    """
+    Validate that a transfer amount is valid.
+
+    Args:
+        amount: The amount to validate
+
+    Raises:
+        InvalidAmountError: If amount is invalid
+    """
+    pass
+
+
+def validate_different_accounts(from_id: str, to_id: str) -> None:
+    """
+    Validate that source and destination accounts are different.
+
+    Args:
+        from_id: Source account ID
+        to_id: Destination account ID
+
+    Raises:
+        SameAccountError: If accounts are the same
+    """
+    pass
+
+
+# ==========================================
+# TEST CASES
+# ==========================================
+
+if __name__ == "__main__":
+    print("=== Testing Custom Exception Creation ===")
+
+    # Test exception hierarchy
+    assert issubclass(InsufficientFundsError, TransferError)
+    assert issubclass(AccountNotFoundError, TransferError)
+    assert issubclass(InvalidAmountError, TransferError)
+    assert issubclass(SameAccountError, TransferError)
+    assert issubclass(TransferError, Exception)
+    print("✓ All exceptions inherit correctly")
+
+    print("\n=== Testing Amount Validation ===")
+
+    # Test negative amount
+    try:
+        validate_transfer_amount(Decimal('-10.00'))
+        print("❌ FAIL: Should raise InvalidAmountError for negative amount")
+    except InvalidAmountError as e:
+        print(f"✓ InvalidAmountError: {e}")
+
+    # Test zero amount
+    try:
+        validate_transfer_amount(Decimal('0.00'))
+        print("❌ FAIL: Should raise InvalidAmountError for zero amount")
+    except InvalidAmountError as e:
+        print(f"✓ InvalidAmountError: {e}")
+
+    # Test too many decimal places
+    try:
+        validate_transfer_amount(Decimal('10.567'))
+        print("❌ FAIL: Should raise InvalidAmountError for > 2 decimal places")
+    except InvalidAmountError as e:
+        print(f"✓ InvalidAmountError: {e}")
+
+    # Test valid amount
+    try:
+        validate_transfer_amount(Decimal('100.50'))
+        print("✓ Valid amount: 100.50")
+    except InvalidAmountError as e:
+        print(f"❌ FAIL: Should not raise error for valid amount: {e}")
+
+    print("\n=== Testing Account Validation ===")
+
+    # Test same account
+    try:
+        validate_different_accounts('ACC123', 'ACC123')
+        print("❌ FAIL: Should raise SameAccountError")
+    except SameAccountError as e:
+        print(f"✓ SameAccountError: {e}")
+
+    # Test different accounts
+    try:
+        validate_different_accounts('ACC123', 'ACC456')
+        print("✓ Different accounts: ACC123 -> ACC456")
+    except SameAccountError as e:
+        print(f"❌ FAIL: Should not raise error for different accounts: {e}")
+
+    print("\n=== Testing Exception Catching Hierarchy ===")
+
+    # Test catching specific exception
+    try:
+        raise InsufficientFundsError("Account has $50 but needs $100")
+    except InsufficientFundsError as e:
+        print(f"✓ Caught InsufficientFundsError: {e}")
+
+    # Test catching base exception
+    try:
+        raise AccountNotFoundError("Account ACC999 not found")
+    except TransferError as e:  # Catching base class
+        print(f"✓ Caught via TransferError: {e}")
+
+    print("\n=== Real-World Example ===")
+
+    def simulate_transfer(from_id: str, to_id: str, amount: Decimal,
+                          from_balance: Decimal) -> None:
+        """Simulates a transfer with proper error handling"""
+        try:
+            validate_different_accounts(from_id, to_id)
+            validate_transfer_amount(amount)
+
+            if from_balance < amount:
+                raise InsufficientFundsError(
+                    f"Account {from_id} has ${from_balance} but transfer "
+                    f"requires ${amount}"
+                )
+
+            print(f"✓ Transfer ${amount} from {from_id} to {to_id}")
+
+        except SameAccountError as e:
+            print(f"❌ Transfer failed: {e}")
+        except InvalidAmountError as e:
+            print(f"❌ Transfer failed: {e}")
+        except InsufficientFundsError as e:
+            print(f"❌ Transfer failed: {e}")
+
+    # Simulate various transfer scenarios
+    simulate_transfer('ACC123', 'ACC456', Decimal('50.00'), Decimal('100.00'))
+    simulate_transfer('ACC123', 'ACC123', Decimal('50.00'), Decimal('100.00'))
+    simulate_transfer('ACC123', 'ACC456', Decimal('-50.00'), Decimal('100.00'))
+    simulate_transfer('ACC123', 'ACC456', Decimal('150.00'), Decimal('100.00'))
+
+    print("\n✓ All tests passed!")
+    print("\nKEY TAKEAWAYS:")
+    print("1. Custom exceptions make errors more specific and clear")
+    print("2. Create exception hierarchy: Base -> Specific")
+    print("3. Name exceptions with 'Error' suffix")
+    print("4. Include helpful error messages")
+    print("5. Catch specific exceptions separately for better error handling")
