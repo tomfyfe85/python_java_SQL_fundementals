@@ -117,7 +117,7 @@ class Account:
     """Represents a financial account with deposit and withdrawal capabilities"""
 
     def __init__(self, account_id: str, owner_name: str,
-                 initial_balance: Decimal = Decimal('0.00')) -> None:
+                initial_balance: Decimal = Decimal('0.00')) -> None:
         """
         Initialize a new account.
 
@@ -131,7 +131,20 @@ class Account:
             TypeError: If initial_balance is not Decimal
             InvalidAmountError: If initial_balance is negative
         """
-        pass
+
+        if account_id == "" or owner_name == "":
+            raise ValueError("account and owner name must be present")
+
+        if initial_balance < 0:
+            raise InvalidAmountError("Initial balance cannot be negative")
+        
+        if type(initial_balance) is not Decimal:
+            raise TypeError("Initial balance must be type decimal")
+
+
+        self.account_id = account_id
+        self.owner_name = owner_name
+        self._balance = initial_balance
 
     def deposit(self, amount: Decimal) -> None:
         """
@@ -144,7 +157,14 @@ class Account:
             TypeError: If amount is not Decimal
             InvalidAmountError: If amount is not positive
         """
-        pass
+        if amount <= 0:
+            raise InvalidAmountError("amount must be positive")
+        
+        if type(amount) is not Decimal:
+            raise TypeError("Amount must be type decimal")
+        
+
+        self._balance += amount
 
     def withdraw(self, amount: Decimal) -> None:
         """
@@ -158,7 +178,16 @@ class Account:
             InvalidAmountError: If amount is not positive
             InsufficientFundsError: If balance is insufficient
         """
-        pass
+        if amount > self._balance:
+            raise InsufficientFundsError("Insufficient funds")
+        
+        if amount <= 0:
+            raise InvalidAmountError("Amount must be positive")
+        
+        if type(amount) is not Decimal:
+            raise TypeError("Amount must be type decimal")
+
+        self._balance -= amount
 
     def get_balance(self) -> Decimal:
         """
@@ -167,7 +196,7 @@ class Account:
         Returns:
             Current balance as Decimal
         """
-        pass
+        return self._balance
 
     def __str__(self) -> str:
         """
@@ -176,7 +205,7 @@ class Account:
         Returns:
             Formatted string with account details
         """
-        pass
+        return f"Account {self.account_id} ({self.owner_name}): ${self._balance}"
 
 
 # ==========================================
@@ -186,17 +215,17 @@ class Account:
 if __name__ == "__main__":
     print("=== Testing Account Creation ===")
 
-    # Test 1: Create account with initial balance
+    # # Test 1: Create account with initial balance
     account1 = Account('ACC001', 'Alice Smith', Decimal('1000.00'))
     print(account1)  # Account ACC001 (Alice Smith): $1000.00
     assert account1.get_balance() == Decimal('1000.00')
 
-    # Test 2: Create account with default balance
+    # # Test 2: Create account with default balance
     account2 = Account('ACC002', 'Bob Jones')
     print(account2)  # Account ACC002 (Bob Jones): $0.00
     assert account2.get_balance() == Decimal('0.00')
 
-    print("\n=== Testing Deposits ===")
+    # print("\n=== Testing Deposits ===")
     account1.deposit(Decimal('500.00'))
     print(f"After $500 deposit: {account1}")
     assert account1.get_balance() == Decimal('1500.00')
@@ -272,7 +301,7 @@ if __name__ == "__main__":
     except InsufficientFundsError as e:
         print(f"✓ InsufficientFundsError: {e}")
 
-    # Test negative withdrawal
+    # # Test negative withdrawal
     try:
         account1.withdraw(Decimal('-50.00'))
         print("❌ FAIL: Should raise InvalidAmountError for negative withdrawal")
