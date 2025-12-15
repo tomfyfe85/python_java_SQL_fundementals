@@ -28,9 +28,9 @@ BEST PRACTICES:
 
 1. Name exceptions with "Error" suffix: InsufficientFundsError
 2. Inherit from the most specific built-in exception:
-   - ValueError for invalid values
-   - TypeError for wrong types
-   - Exception for domain-specific errors
+    - ValueError for invalid values
+    - TypeError for wrong types
+    - Exception for domain-specific errors
 
 3. Add helpful error messages when raising
 
@@ -70,33 +70,33 @@ REQUIREMENTS:
 Create these custom exception classes:
 
 1. TransferError (base exception)
-   - Base class for all transfer-related errors
-   - Inherits from Exception
+    - Base class for all transfer-related errors
+    - Inherits from Exception
 
 2. InsufficientFundsError
-   - Raised when source account does not have enough money
-   - Inherits from TransferError
+    - Raised when source account does not have enough money
+    - Inherits from TransferError
 
 3. AccountNotFoundError
-   - Raised when an account ID does not exist
-   - Inherits from TransferError
+    - Raised when an account ID     oes not exist
+    - Inherits from TransferError
 
 4. InvalidAmountError
-   - Raised when transfer amount is invalid (negative, zero, wrong type)
-   - Inherits from TransferError
+    - Raised when transfer amount is invalid (negative, zero, wrong type)
+    - Inherits from TransferError
 
 5. SameAccountError
-   - Raised when trying to transfer to the same account
-   - Inherits from TransferError
+    - Raised when trying to transfer to the same account
+    - Inherits from TransferError
 
 Then implement these validation functions that raise the exceptions:
 
 6. validate_transfer_amount(amount: Decimal) -> None
-   - Raise InvalidAmountError if amount <= 0
-   - Raise InvalidAmountError if amount has more than 2 decimal places
+    - Raise InvalidAmountError if amount <= 0
+    - Raise InvalidAmountError if amount has more than 2 decimal places
 
 7. validate_different_accounts(from_id: str, to_id: str) -> None
-   - Raise SameAccountError if from_id == to_id
+    - Raise SameAccountError if from_id == to_id
 
 EXAMPLES:
 
@@ -122,16 +122,17 @@ class TransferError(Exception):
     pass
 
 
-# TODO: Create InsufficientFundsError
+class InsufficientFundsError(TransferError):
+    pass
 
+class AccountNotFoundError(TransferError):
+    pass
 
-# TODO: Create AccountNotFoundError
+class InvalidAmountError(TransferError):
+    pass
 
-
-# TODO: Create InvalidAmountError
-
-
-# TODO: Create SameAccountError
+class SameAccountError(TransferError):
+    pass
 
 
 # Implement validation functions
@@ -145,7 +146,9 @@ def validate_transfer_amount(amount: Decimal) -> None:
     Raises:
         InvalidAmountError: If amount is invalid
     """
-    pass
+    if amount <= Decimal('0.00') or amount.as_tuple().exponent < -2:
+        raise InvalidAmountError("Amount must be positive")
+    
 
 
 def validate_different_accounts(from_id: str, to_id: str) -> None:
@@ -159,7 +162,8 @@ def validate_different_accounts(from_id: str, to_id: str) -> None:
     Raises:
         SameAccountError: If accounts are the same
     """
-    pass
+    if from_id == to_id:
+        raise SameAccountError("Accounts must be different")
 
 
 # ==========================================
@@ -240,7 +244,7 @@ if __name__ == "__main__":
     print("\n=== Real-World Example ===")
 
     def simulate_transfer(from_id: str, to_id: str, amount: Decimal,
-                          from_balance: Decimal) -> None:
+                        from_balance: Decimal) -> None:
         """Simulates a transfer with proper error handling"""
         try:
             validate_different_accounts(from_id, to_id)
