@@ -116,24 +116,25 @@ from decimal import Decimal
 # YOUR CODE GOES BELOW
 # ==========================================
 
-# Define your custom exceptions here
 class TransferError(Exception):
     """Base exception for all transfer-related errors"""
     pass
 
-
 class InsufficientFundsError(TransferError):
+    """Raised when account has insufficient funds for a transaction"""
     pass
 
 class AccountNotFoundError(TransferError):
+    """Raised when an account ID does not exist"""
     pass
 
 class InvalidAmountError(TransferError):
+    """Raised when transfer amount is invalid (negative, zero, or wrong format)"""
     pass
 
 class SameAccountError(TransferError):
+    """Raised when attempting to transfer to the same account"""
     pass
-
 
 # Implement validation functions
 def validate_transfer_amount(amount: Decimal) -> None:
