@@ -111,16 +111,11 @@ YOUR TASK:
 from decimal import Decimal
 from account_class import Account
 from custom_exceptions import (
-    TransferError,
     InsufficientFundsError,
     InvalidAmountError,
     AccountNotFoundError,
     SameAccountError
 )
-
-# ==========================================
-# YOUR CODE GOES BELOW
-# ==========================================
 
 class TransferService:
     """Manages accounts and coordinates money transfers"""
