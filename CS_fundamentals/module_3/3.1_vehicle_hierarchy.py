@@ -156,11 +156,15 @@ class Car(Vehicle):
 
 class Motorcycle(Vehicle):
     """Motorcycle subclass with engine size"""
-    pass
+    def __init__(self, make, model, year, engine_cc):
+        super().__init__(make, model, year)
+        self._engine_cc = engine_cc
 
+    def describe(self):
+        return f"{self.year} {self.make} {self.model} ({self._engine_cc})"
 
 class Truck(Vehicle):
-    """Truck subclass with cargo capacity"""
+    """Truck subclass with cargo capacity""" 
     pass
 
 
@@ -181,9 +185,9 @@ if __name__ == "__main__":
     assert isinstance(car, Vehicle)  # Car IS-A Vehicle
 
     # print("\n=== Testing Motorcycle ===")
-    # motorcycle = Motorcycle("Harley-Davidson", "Street 750", 2022, engine_cc=750)
-    # print(motorcycle.describe())  # 2022 Harley-Davidson Street 750 (750cc)
-    # assert isinstance(motorcycle, Vehicle)  # Motorcycle IS-A Vehicle
+    motorcycle = Motorcycle("Harley-Davidson", "Street 750", 2022, engine_cc=750)
+    print(motorcycle.describe())  # 2022 Harley-Davidson Street 750 (750cc)
+    assert isinstance(motorcycle, Vehicle)  # Motorcycle IS-A Vehicle
 
     # print("\n=== Testing Truck ===")
     # truck = Truck("Ford", "F-150", 2023, cargo_capacity=3.5)
