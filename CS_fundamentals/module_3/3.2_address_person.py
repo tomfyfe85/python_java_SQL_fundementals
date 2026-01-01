@@ -143,7 +143,6 @@ class Address():
         self.zip_code = zip_code
 
     def __str__(self):
-        """Returns a string representation of the class attributes"""
         return f"{self.street}, {self.city}, {self.state} {self.zip_code}"
     
 class Person():
@@ -155,7 +154,10 @@ class Person():
 
     def get_full_info(self):
         """Returns full details of the person, inc address"""
-        return f"{self.__str__()} \nAddress: {self.address.__str__()}"
+        return f"{self} \nAddress: {self.address.__str__()}"
+    
+    def move(self, new_address: Address):
+        self.address = new_address
 
     def __str__(self):
         return f"{self.name}, {self.age} years old"
@@ -186,12 +188,12 @@ if __name__ == "__main__":
     # Alice Smith, 30 years old
     # Address: 123 Main St, Springfield, IL 62701
 
-    # # Test 4: Move to new address
-    # print("\n=== Testing Move ===")
-    # person1.move(addr2)
-    # print(person1.get_full_info())
-    # # Alice Smith, 30 years old
-    # # Address: 456 Oak Ave, Chicago, IL 60601
+    # Test 4: Move to new address
+    print("\n=== Testing Move ===")
+    person1.move(addr2)
+    print(person1.get_full_info())
+    # Alice Smith, 30 years old
+    # Address: 456 Oak Ave, Chicago, IL 60601
 
     # # Test 5: Create another person with same address
     # person2 = Person("Bob Jones", 45, addr2)
