@@ -1,3 +1,8 @@
-    print("\n=== Testing Start/Stop ===")
-    car.start()  # Starting 2023 Toyota Camry
-    car.stop()   # Stopping 2023 Toyota Camry
+    # print("\n=== Testing Address Validation ===")
+
+    # # Test empty street
+    # try:
+    #     bad_addr = Address("", "City", "IL", "12345")
+    #     print("❌ FAIL: Should raise ValueError for empty street")
+    # except ValueError as e:
+    #     print(f"✓ ValueError: {e}")

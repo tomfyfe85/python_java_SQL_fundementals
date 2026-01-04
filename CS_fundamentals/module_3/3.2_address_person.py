@@ -137,6 +137,11 @@ YOUR TASK:
 class Address():
     """Represents an American address"""
     def __init__(self, street:str, city:str, state:str, zip_code:str):
+        if not street:
+            raise ValueError("Street cannot be empty")
+        if not city:
+            raise ValueError("City cannot be empty")
+
         self.street = street
         self.city = city
         self.state = state
@@ -157,6 +162,7 @@ class Person():
         return f"{self} \nAddress: {self.address.__str__()}"
     
     def move(self, new_address: Address):
+        """Updates address"""
         self.address = new_address
 
     def __str__(self):
@@ -195,34 +201,34 @@ if __name__ == "__main__":
     # Alice Smith, 30 years old
     # Address: 456 Oak Ave, Chicago, IL 60601
 
-    # # Test 5: Create another person with same address
-    # person2 = Person("Bob Jones", 45, addr2)
-    # print(person2.get_full_info())
-    # # Bob Jones, 45 years old
-    # # Address: 456 Oak Ave, Chicago, IL 60601
+    # Test 5: Create another person with same address
+    person2 = Person("Bob Jones", 45, addr2)
+    print(person2.get_full_info())
+    # Bob Jones, 45 years old
+    # Address: 456 Oak Ave, Chicago, IL 60601
 
-    # print("\n=== Testing Address Validation ===")
+    print("\n=== Testing Address Validation ===")
 
-    # # Test empty street
-    # try:
-    #     bad_addr = Address("", "City", "IL", "12345")
-    #     print("❌ FAIL: Should raise ValueError for empty street")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    # Test empty street
+    try:
+        bad_addr = Address("", "City", "IL", "12345")
+        print("❌ FAIL: Should raise ValueError for empty street")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
-    # # Test empty city
-    # try:
-    #     bad_addr = Address("123 Main St", "", "IL", "12345")
-    #     print("❌ FAIL: Should raise ValueError for empty city")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    # Test empty city
+    try:
+        bad_addr = Address("123 Main St", "", "IL", "12345")
+        print("❌ FAIL: Should raise ValueError for empty city")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
-    # # Test invalid state (not 2 chars)
-    # try:
-    #     bad_addr = Address("123 Main St", "City", "Illinois", "12345")
-    #     print("❌ FAIL: Should raise ValueError for invalid state")
-    # except ValueError as e:
-    #     print(f"✓ ValueError: {e}")
+    # Test invalid state (not 2 chars)
+    try:
+        bad_addr = Address("123 Main St", "City", "Illinois", "12345")
+        print("❌ FAIL: Should raise ValueError for invalid state")
+    except ValueError as e:
+        print(f"✓ ValueError: {e}")
 
     # # Test invalid state (not uppercase)
     # try:
