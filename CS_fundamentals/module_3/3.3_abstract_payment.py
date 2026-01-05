@@ -135,19 +135,10 @@ LEARNING OBJECTIVES:
 
 """
 
-# Class: PaymentMethod (inherits from ABC)
-
-# Abstract methods:
-# - process_payment(amount: float) -> bool
-#     Returns True if payment succeeds, False otherwise
-
-# - get_transaction_fee(amount: float) -> float
-#     Returns the fee charged for processing this amount
 
 from abc import ABC, abstractmethod
 
 class PaymentMethod(ABC):
-
     @abstractmethod
     def process_payment(amount: float) -> bool:
         pass
@@ -156,7 +147,47 @@ class PaymentMethod(ABC):
     def get_transaction_fee(amount: float) -> float:
         pass
 
+class CreditCard(PaymentMethod):
+    def __init__(self, card_number: str):
+        if len(card_number) != 4:
+            raise ValueError("last four digits")
+        self.card_number = card_number
 
+    def process_payment(self, amount:float):
+        print(f"Processing ${amount} via Credit Card ****{self.card_number}")
+        return True
+
+    def get_transaction_fee(self, amount):
+        fee = 0.029 * amount
+        return fee
+    
+class PayPal(PaymentMethod):
+    def __init__(self, email:str):
+        self.email = email
+
+    def process_payment(self, amount:float):
+        print("Processing ${amount} via PayPal ({email})")
+        return True
+    
+    def get_transaction_fee(self, amount:float):
+        return amount * 0.035
+    
+
+class BankTransfer(PaymentMethod):
+    def __init__(self, account_number:str):
+        self.account_number = account_number
+
+    def process_payment(self, amount:float):
+        if amount > 10000: 
+            print("Large transfer requires manual approval")
+            return False
+        print("Processing ${amount} via Bank Transfer ****{self.account_number}")
+        return True      
+
+    def get_transaction_fee(self, amount:str):
+        return 5.0
+    
+def checkout(payment_method: PaymentMethod, amount: float) -> None:
 
 
 # ==========================================
@@ -171,33 +202,51 @@ if __name__ == "__main__":
     except TypeError as e:
         print(f"✓ PASS: {e}")
 
-    # print("\n=== Test 2: CreditCard ===")
-    # cc = CreditCard("1234")
-    # print(f"Fee for $100: ${cc.get_transaction_fee(100.0):.2f}")  # $2.90
-    # cc.process_payment(100.0)  # Processing $100.0 via Credit Card ****1234
+    print("\n=== Test 2: CreditCard ===")
+    cc = CreditCard("1234")
+    print(f"Fee for $100: ${cc.get_transaction_fee(100.0):.2f}")  # $2.90
+    cc.process_payment(100.0)  # Processing $100.0 via Credit Card ****1234
 
-    # print("\n=== Test 3: PayPal ===")
-    # paypal = PayPal("user@example.com")
-    # print(f"Fee for $100: ${paypal.get_transaction_fee(100.0):.2f}")  # $3.50
-    # paypal.process_payment(100.0)  # Processing $100.0 via PayPal (user@example.com)
+    print("\n=== Test 3: PayPal ===")
+    paypal = PayPal("user@example.com")
+    print(f"Fee for $100: ${paypal.get_transaction_fee(100.0):.2f}")  # $3.50
+    paypal.process_payment(100.0)  # Processing $100.0 via PayPal (user@example.com)
 
-    # print("\n=== Test 4: BankTransfer ===")
-    # bank = BankTransfer("5678")
-    # print(f"Fee for $100: ${bank.get_transaction_fee(100.0):.2f}")  # $5.00
-    # bank.process_payment(100.0)  # Processing $100.0 via Bank Transfer ****5678
+    print("\n=== Test 4: BankTransfer ===")
+    bank = BankTransfer("5678")
+    print(f"Fee for $100: ${bank.get_transaction_fee(100.0):.2f}")  # $5.00
+    bank.process_payment(100.0)  # Processing $100.0 via Bank Transfer ****5678
 
-    # print("\n=== Test 5: BankTransfer - Large amount ===")
-    # result = bank.process_payment(15000.0)  # Large transfer requires manual approval
-    # print(f"Success: {result}")  # False
+    print("\n=== Test 5: BankTransfer - Large amount ===")
+    result = bank.process_payment(15000.0)  # Large transfer requires manual approval
+    print(f"Success: {result}")  # False
 
-    # print("\n=== Test 6: Polymorphism - checkout function ===")
-    # checkout(CreditCard("1234"), 100.0)
-    # print()
-    # checkout(PayPal("user@example.com"), 100.0)
-    # print()
-    # checkout(BankTransfer("5678"), 100.0)
-    # print()
-    # checkout(BankTransfer("5678"), 15000.0)  # Should fail
+    print("\n=== Test 6: Polymorphism - checkout function ===")
+
+    # Test 6a: CreditCard checkout
+    cc_test = CreditCard("1234")
+    fee = cc_test.get_transaction_fee(100.0)
+    assert fee == 2.90, f"CreditCard fee should be $2.90, got ${fee}"
+    print("✓ CreditCard fee calculation correct: $2.90")
+
+    # Test 6b: PayPal checkout
+    pp_test = PayPal("user@example.com")
+    fee = pp_test.get_transaction_fee(100.0)
+    assert fee == 3.50, f"PayPal fee should be $3.50, got ${fee}"
+    print("✓ PayPal fee calculation correct: $3.50")
+
+    # Test 6c: BankTransfer checkout (success)
+    bt_test = BankTransfer("5678")
+    fee = bt_test.get_transaction_fee(100.0)
+    assert fee == 5.0, f"BankTransfer fee should be $5.00, got ${fee}"
+    print("✓ BankTransfer fee calculation correct: $5.00")
+
+    # Test 6d: BankTransfer large amount (should fail)
+    result = bt_test.process_payment(15000.0)
+    assert result == False, "BankTransfer should reject large amounts"
+    print("✓ BankTransfer correctly rejects large amounts")
+
+    print("\n✓ All fee calculations and validations passed!")
 
     # print("\n=== Test 7: Type checking ===")
     # payments = [
