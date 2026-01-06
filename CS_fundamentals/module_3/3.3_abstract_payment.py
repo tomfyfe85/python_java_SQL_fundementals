@@ -157,20 +157,21 @@ class CreditCard(PaymentMethod):
         print(f"Processing ${amount} via Credit Card ****{self.card_number}")
         return True
 
-    def get_transaction_fee(self, amount):
+    def get_transaction_fee(self, amount:float):
         fee = 0.029 * amount
-        return fee
+        return round(fee, 2)
     
 class PayPal(PaymentMethod):
     def __init__(self, email:str):
         self.email = email
 
     def process_payment(self, amount:float):
-        print("Processing ${amount} via PayPal ({email})")
+        print(f"Processing ${amount} via PayPal ({self.email})")
         return True
     
     def get_transaction_fee(self, amount:float):
-        return amount * 0.035
+        fee = amount * 0.035
+        return round(fee, 2)
     
 
 class BankTransfer(PaymentMethod):
@@ -188,8 +189,9 @@ class BankTransfer(PaymentMethod):
         return 5.0
     
 def checkout(payment_method: PaymentMethod, amount: float) -> None:
-
-
+    fee = payment_method.get_transaction_fee(amount)
+    total = amount + fee
+    print(f"Total with fees: ${total:.2f}")
 # ==========================================
 # TESTS
 # ==========================================
@@ -248,25 +250,25 @@ if __name__ == "__main__":
 
     print("\n✓ All fee calculations and validations passed!")
 
-    # print("\n=== Test 7: Type checking ===")
-    # payments = [
-    #     CreditCard("1111"),
-    #     PayPal("test@test.com"),
-    #     BankTransfer("2222")
-    # ]
-    # for p in payments:
-    #     print(f"{p.__class__.__name__} is a PaymentMethod: {isinstance(p, PaymentMethod)}")
+    print("\n=== Test 7: Type checking ===")
+    payments = [
+        CreditCard("1111"),
+        PayPal("test@test.com"),
+        BankTransfer("2222")
+    ]
+    for p in payments:
+        print(f"{p.__class__.__name__} is a PaymentMethod: {isinstance(p, PaymentMethod)}")
 
-    # print("\n=== Test 8: Incomplete implementation ===")
-    # class IncompletePayment(PaymentMethod):
-    #     def process_payment(self, amount: float) -> bool:
-    #         return True
-    #     # Missing get_transaction_fee()
+    print("\n=== Test 8: Incomplete implementation ===")
+    class IncompletePayment(PaymentMethod):
+        def process_payment(self, amount: float) -> bool:
+            return True
+        # Missing get_transaction_fee()
 
-    # try:
-    #     incomplete = IncompletePayment()
-    #     print("❌ FAIL: Should not instantiate without all methods")
-    # except TypeError as e:
-    #     print(f"✓ PASS: {e}")
+    try:
+        incomplete = IncompletePayment()
+        print("❌ FAIL: Should not instantiate without all methods")
+    except TypeError as e:
+        print(f"✓ PASS: {e}")
 
-    # print("\n✓ All tests passed")
+    print("\n✓ All tests passed")
