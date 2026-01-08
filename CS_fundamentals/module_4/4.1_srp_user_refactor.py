@@ -155,11 +155,6 @@ YOUR TASK:
 
 Refactor into FOUR separate classes:
 
-1. User (data class)
-   - Attributes: username, email, password
-   - Methods: __init__ only
-   - Responsibility: Hold user data
-
 2. UserValidator
    - Methods: validate_username(username), validate_email(email), validate_password(password)
    - Responsibility: Validate user data
@@ -235,21 +230,54 @@ class MessyUser:
         print("Body: Thanks for joining us!")
         return True
 
-    def to_dict(self):
-        """Converts user to dictionary"""
-        return {
-            "username": self.username,
-            "email": self.email,
-            "is_saved": self.is_saved
-        }
-
-
 # ==========================================
 # YOUR REFACTORED CODE GOES HERE
 # ==========================================
+class User():
+    def __init__(self, username, email, password):
+        self.username = username
+        self.email = email
+        self.password = password
 
+class UserValidator():
+    def validate_username(self, username):
+        if not username:
+            raise ValueError("Username cannot be empty")
+        if len(username) < 3 or len(username) > 20:
+            raise ValueError("Username must be 3-20 characters")
+        return True
 
+    def validate_email(self, email):
+        """Validates email contains @ symbol"""
+        if "@" not in email:
+            raise ValueError("Invalid email format")
+        return True
 
+    def validate_password(self, password):
+        """Validates password is at least 8 characters"""
+        if len(password) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        return True
+
+class UserRepository():
+    def save(self, user):
+        """Simulates saving to database"""
+        validator = UserValidator()
+
+        validator.validate_username(user.username)
+        validator.validate_email(user.email)
+        validator.validate_password(user.password)
+
+        print(f"Saving user {user.username} to database...")
+        return True
+
+class EmailService():
+    def send_welcome_email(self, user):
+        """Simulates sending welcome email"""
+        print(f"Sending welcome email to {user.email}...")
+        print(f"Subject: Welcome {user.username}!")
+        print("Body: Thanks for joining us!")
+        return True
 
 # ==========================================
 # TESTS
